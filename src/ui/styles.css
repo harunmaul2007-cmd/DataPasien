@@ -1,0 +1,991 @@
+/* Token CSS global dan tata letak aplikasi.
+ * - Area sentuh minimal 44×44 px untuk semua elemen interaktif (Req 11.3)
+ * - max-width: 100% dan overflow-wrap: anywhere mencegah scroll horizontal 360–1920 px (Req 11.1)
+ * - < 768 px: navigasi bawah tetap; ≥ 768 px: sidebar kiri tetap (Req 11.2, 11.6)
+ */
+
+:root {
+  --touch-min: 44px;
+  --nav-height: 64px;
+  --sidebar-width: 220px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+
+  --radius: 8px;
+  --font-size: 16px;
+  --line-height: 1.5;
+
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-text: #1b1f24;
+  --color-muted: #5b6470;
+  --color-border: #d0d5dc;
+  --color-primary: #0b5cad;
+  --color-primary-text: #ffffff;
+  --color-danger: #b42318;
+  --color-success: #1e7a3c;
+  --color-focus: #f5a623;
+
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+body,
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Cegah konten melebar melebihi layar. */
+img,
+svg,
+video,
+canvas,
+table,
+input,
+select,
+textarea,
+button,
+pre {
+  max-width: 100%;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+li,
+td,
+th,
+dd,
+dt,
+span,
+label,
+a {
+  overflow-wrap: anywhere;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0 0 var(--space-4);
+}
+
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 var(--space-3);
+}
+
+/* Area sentuh minimal untuk setiap elemen interaktif. */
+button,
+a,
+input,
+select,
+textarea,
+[role='button'],
+.nav__link,
+.btn {
+  min-height: var(--touch-min);
+  min-width: var(--touch-min);
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  width: var(--touch-min);
+  height: var(--touch-min);
+  margin: 0;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ---- Tombol ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+  color: #fff;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---- Tata letak ---- */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 100%;
+}
+
+.app__main {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  padding: var(--space-4);
+  /* Ruang untuk navigasi bawah tetap. */
+  padding-bottom: calc(var(--nav-height) + var(--space-4) + env(safe-area-inset-bottom, 0px));
+}
+
+.page {
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* ---- Navigasi: bawah (< 768 px) ---- */
+.nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.nav__brand {
+  display: none;
+}
+
+.nav__list {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  height: var(--nav-height);
+}
+
+.nav__item {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+}
+
+.nav__item--settings {
+  flex: 0 0 auto;
+}
+
+.nav__link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-muted);
+  text-decoration: none;
+  font-size: 0.8125rem;
+}
+
+.nav__link--active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.nav__icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Ikon pengaturan di bilah bawah hanya ikon (label tetap via aria-label). */
+.nav__link--settings .nav__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---- Navigasi: sidebar (≥ 768 px) ---- */
+@media (min-width: 768px) {
+  .app {
+    flex-direction: row;
+  }
+
+  .nav {
+    position: sticky;
+    top: 0;
+    bottom: auto;
+    right: auto;
+    flex: 0 0 var(--sidebar-width);
+    width: var(--sidebar-width);
+    height: 100vh;
+    height: 100dvh;
+    border-top: 0;
+    border-right: 1px solid var(--color-border);
+    padding: var(--space-4) var(--space-2);
+  }
+
+  .nav__brand {
+    display: block;
+    font-weight: 700;
+    font-size: 1.125rem;
+    padding: 0 var(--space-3) var(--space-4);
+  }
+
+  .nav__list {
+    flex-direction: column;
+    height: auto;
+    gap: var(--space-1);
+  }
+
+  .nav__item,
+  .nav__item--settings {
+    flex: 0 0 auto;
+  }
+
+  .nav__item--settings {
+    margin-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+    padding-top: var(--space-4);
+  }
+
+  .nav__link {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius);
+    font-size: 1rem;
+  }
+
+  .nav__link--active {
+    background: rgba(11, 92, 173, 0.1);
+  }
+
+  .nav__link--settings .nav__label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  .app__main {
+    padding: var(--space-6);
+  }
+}
+
+/* ---- Formulir ---- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  min-width: 0;
+}
+
+.field__label {
+  font-weight: 600;
+}
+
+.field__input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+textarea.field__input {
+  min-height: calc(var(--touch-min) * 2);
+  resize: vertical;
+}
+
+.field__input[aria-invalid='true'] {
+  border-color: var(--color-danger);
+}
+
+.field__hint {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.field__error {
+  color: var(--color-danger);
+  font-size: 0.875rem;
+}
+
+/* ---- Dialog ---- */
+.dialog {
+  width: min(560px, calc(100vw - 2 * var(--space-4)));
+  max-width: 100%;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow: auto;
+  padding: var(--space-4);
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.dialog__title {
+  margin-top: 0;
+}
+
+.dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* ---- Toast ---- */
+.toast-list {
+  position: fixed;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: calc(var(--nav-height) + var(--space-4) + env(safe-area-inset-bottom, 0px));
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .toast-list {
+    left: calc(var(--sidebar-width) + var(--space-4));
+    bottom: var(--space-4);
+  }
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: min(560px, 100%);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--color-text);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+}
+
+.toast--success {
+  background: var(--color-success);
+}
+
+.toast--error {
+  background: var(--color-danger);
+}
+
+.toast__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__close {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+/* ---- Layar status (memuat / gagal dimuat) ---- */
+.status-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 50vh;
+  text-align: center;
+}
+
+.status-screen h1 {
+  margin: 0;
+}
+
+/* ---- Tombol Varian Tambahan ---- */
+.btn--secondary,
+.btn-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn--secondary:hover,
+.btn-secondary:hover {
+  background: var(--color-bg);
+}
+
+.btn-danger-secondary {
+  background: var(--color-surface);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+.btn-danger-secondary:hover {
+  background: #fef3f2;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 1.25rem;
+  cursor: pointer;
+  border-radius: var(--radius);
+  padding: var(--space-1);
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Info Pasien (Form Sesi) ---- */
+.info-pasien-card {
+  background: #edf3f9;
+  border: 1px solid #c9dced;
+  border-radius: var(--radius);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.info-pasien-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+}
+
+.info-pasien-row dt {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-pasien-row dd {
+  margin: var(--space-1) 0 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* ---- Foto Strip ---- */
+.foto-strip-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.foto-strip-count-badge {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.foto-strip-list {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding: var(--space-1) 0;
+  scrollbar-width: thin;
+}
+
+.foto-strip-item {
+  position: relative;
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.foto-thumbnail-btn {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+}
+
+.foto-thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.foto-thumbnail-loading {
+  font-size: 1.25rem;
+  color: var(--color-muted);
+}
+
+.foto-thumbnail-error {
+  font-size: 0.65rem;
+  text-align: center;
+  color: var(--color-danger);
+  padding: 2px;
+}
+
+.foto-delete-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.foto-delete-btn:hover {
+  background: var(--color-danger);
+}
+
+/* ---- Photo Viewer ---- */
+.photo-viewer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.94);
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+}
+
+.photo-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.photo-viewer-posisi {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.photo-viewer-close {
+  color: #fff;
+}
+
+.photo-viewer-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2);
+  overflow: hidden;
+  position: relative;
+}
+
+.photo-viewer-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  user-select: none;
+}
+
+.photo-viewer-loading,
+.photo-viewer-error {
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.photo-viewer-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.photo-viewer-prev,
+.photo-viewer-next {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.photo-viewer-prev:disabled,
+.photo-viewer-next:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ---- Foto Picker ---- */
+.foto-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.foto-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.foto-picker-status {
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+.foto-picker-pesan-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.foto-picker-pesan-item {
+  font-size: 0.85rem;
+  color: var(--color-danger);
+  background: #fef3f2;
+  border-left: 3px solid var(--color-danger);
+  padding: var(--space-1) var(--space-2);
+  border-radius: 4px;
+}
+
+.sesi-foto-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ---- WhatsApp Button ---- */
+.btn-whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 4px 10px;
+  background: rgba(37, 211, 102, 0.1);
+  border: 1px solid #25d366;
+  border-radius: var(--radius);
+  color: #128c7e;
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  min-height: var(--touch-min);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-whatsapp:hover {
+  background: rgba(37, 211, 102, 0.2);
+}
+
+.btn-whatsapp-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.btn-whatsapp-text {
+  text-decoration: underline;
+}
+
+/* ---- Laporan Sesi Flow & Dialog Overlay ---- */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.dialog-box {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius);
+  max-width: 560px;
+  width: 100%;
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.laporan-flow-box {
+  max-width: 760px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.dialog-body {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-height: 0;
+}
+
+.dialog-footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.laporan-loading-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  gap: var(--space-3);
+  min-height: 220px;
+}
+
+.laporan-preview-body {
+  padding: var(--space-3) var(--space-4);
+}
+
+.laporan-pdf-iframe {
+  width: 100%;
+  height: 55vh;
+  min-height: 320px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-min);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type='checkbox'] {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.keterangan-bantu {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin: var(--space-1) 0 0;
+}
+
+/* ---- Pengaturan Praktik & Logo Picker ---- */
+.pengaturan-page {
+  max-width: 680px;
+}
+
+.pengaturan-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pengaturan-card {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.pengaturan-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.logo-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.logo-preview-box {
+  width: 140px;
+  height: 140px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  overflow: hidden;
+  padding: var(--space-2);
+}
+
+.logo-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.logo-picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.logo-picker-status {
+  font-size: 0.875rem;
+  color: var(--color-primary);
+  font-style: italic;
+}
+
+/* ---- Kontak Picker (Pasien Form) ---- */
+.field-group-contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.btn-ambil-kontak {
+  align-self: flex-start;
+  min-height: var(--touch-min);
+}
+
+.daftar-nomor-kontak {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+}
+
+.btn-nomor-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  cursor: pointer;
+  min-height: var(--touch-min);
+  text-align: left;
+  font-size: 1rem;
+}
+
+.btn-nomor-item:hover {
+  background: var(--color-bg);
+  border-color: var(--color-primary);
+}
+

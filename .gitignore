@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+release/*.apk
+test-results/
+playwright-report/
+*.tsbuildinfo
+.vite/
+
+# Kunci_Penandatanganan Android (jangan pernah dikomit)
+keystore.properties
+*.jks
+*.keystore

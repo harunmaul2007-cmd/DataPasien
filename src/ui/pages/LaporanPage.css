@@ -1,0 +1,84 @@
+/* Gaya khusus halaman laporan pemasukan. */
+
+.laporan__filter {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  max-width: 480px;
+  margin-bottom: var(--space-4);
+}
+
+.laporan__filter .field {
+  margin-bottom: 0;
+}
+
+.laporan__ringkasan {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+
+.laporan__kartu {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.laporan__kartu dt {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.laporan__kartu dd {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.laporan__pesan {
+  color: var(--color-muted);
+}
+
+.laporan__pesan--error {
+  color: var(--color-danger);
+}
+
+.laporan__rincian {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.laporan__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-1) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+}
+
+.laporan__item-nama {
+  font-weight: 600;
+}
+
+.laporan__item-meta {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  grid-column: 1;
+}
+
+.laporan__item-biaya {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  align-self: center;
+  font-weight: 600;
+  white-space: nowrap;
+}

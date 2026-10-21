@@ -1,0 +1,109 @@
+import groovy.json.JsonSlurper
+
+apply plugin: 'com.android.application'
+
+// --- Versi aplikasi: satu sumber kebenaran di <root>/version.json (Req 13.12) ---
+def versionFile = rootProject.file('../version.json')
+if (!versionFile.exists()) {
+    throw new GradleException("version.json tidak ditemukan di ${versionFile.absolutePath}")
+}
+def appVersion = new JsonSlurper().parse(versionFile)
+if (!(appVersion.versionCode instanceof Integer) || appVersion.versionCode < 1) {
+    throw new GradleException("versionCode di version.json harus bilangan bulat >= 1")
+}
+if (!(appVersion.versionName instanceof String) || !(appVersion.versionName ==~ /^\d+\.\d+\.\d+$/)) {
+    throw new GradleException("versionName di version.json harus berformat MAJOR.MINOR.PATCH")
+}
+
+// --- Kunci_Penandatanganan: android/keystore.properties atau env DATAPASIEN_KEYSTORE_* ---
+// keystore.properties (tidak dikomit) berisi: storeFile, storePassword, keyAlias, keyPassword.
+// Variabel lingkungan alternatif:
+//   DATAPASIEN_KEYSTORE_FILE, DATAPASIEN_KEYSTORE_PASSWORD,
+//   DATAPASIEN_KEYSTORE_ALIAS, DATAPASIEN_KEYSTORE_KEY_PASSWORD
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file('keystore.properties')
+if (keystorePropsFile.exists()) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+def signingValue = { String propKey, String envKey ->
+    def v = keystoreProps.getProperty(propKey)
+    if (v == null || v.trim().isEmpty()) {
+        v = System.getenv(envKey)
+    }
+    return (v == null || v.trim().isEmpty()) ? null : v.trim()
+}
+def releaseStoreFile = signingValue('storeFile', 'DATAPASIEN_KEYSTORE_FILE')
+def releaseStorePassword = signingValue('storePassword', 'DATAPASIEN_KEYSTORE_PASSWORD')
+def releaseKeyAlias = signingValue('keyAlias', 'DATAPASIEN_KEYSTORE_ALIAS')
+def releaseKeyPassword = signingValue('keyPassword', 'DATAPASIEN_KEYSTORE_KEY_PASSWORD')
+def hasReleaseSigning = releaseStoreFile && releaseStorePassword && releaseKeyAlias && releaseKeyPassword
+
+android {
+    namespace = "com.datapasien.terapi"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.datapasien.terapi"
+        // Android 7.0 (API 24) ke atas (Req 13.2)
+        minSdkVersion 24
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode appVersion.versionCode
+        versionName appVersion.versionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                // Path relatif diselesaikan terhadap direktori android/
+                storeFile rootProject.file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            } else {
+                logger.warn("Kunci_Penandatanganan tidak dikonfigurasi: APK rilis tidak akan ditandatangani.")
+            }
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

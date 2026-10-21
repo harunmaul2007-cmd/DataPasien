@@ -1,0 +1,144 @@
+/* Halaman detail pasien dan item histori terapi. */
+
+.pasien-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pasien-detail__back {
+  align-self: flex-start;
+}
+
+.pasien-detail__card,
+.pasien-detail__stat,
+.histori-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.pasien-detail__card h1 {
+  margin-bottom: var(--space-2);
+}
+
+.pasien-detail__info,
+.histori-item__detail {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+}
+
+.pasien-detail__info dt,
+.histori-item__detail dt {
+  color: var(--color-muted);
+}
+
+.pasien-detail__info dd,
+.histori-item__detail dd {
+  margin: 0;
+  min-width: 0;
+  white-space: pre-wrap;
+}
+
+.pasien-detail__ringkasan {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.pasien-detail__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pasien-detail__stat-label {
+  color: var(--color-muted);
+  font-size: 0.875rem;
+}
+
+.pasien-detail__stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.pasien-detail__section {
+  min-width: 0;
+}
+
+.pasien-detail__section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.pasien-detail__section-header h2 {
+  margin: 0;
+}
+
+.pasien-detail__empty,
+.pasien-detail__message {
+  color: var(--color-muted);
+}
+
+.pasien-detail__jadwal,
+.pasien-detail__histori {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pasien-detail__jadwal-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.pasien-detail__jadwal-waktu {
+  font-weight: 600;
+}
+
+.pasien-detail__jadwal-catatan {
+  color: var(--color-muted);
+  white-space: pre-wrap;
+}
+
+.histori-item__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-weight: 600;
+}
+
+.histori-item__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+@media (max-width: 479px) {
+  .pasien-detail__info,
+  .histori-item__detail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .histori-item__detail dd {
+    margin-bottom: var(--space-2);
+  }
+}
