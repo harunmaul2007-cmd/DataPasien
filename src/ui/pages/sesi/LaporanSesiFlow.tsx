@@ -1,7 +1,7 @@
 // LaporanSesiFlow: alur penyusunan, pembuatan, pratinjau, simpan, dan bagikan laporan PDF (Req 5, 6, 8, 10).
 
 import { useEffect, useState, useCallback } from 'react';
-import { layoutLaporan, type GambarInfo } from '../../../domain/laporanLayout';
+import { layoutLaporan, type GambarInfo, type Halaman } from '../../../domain/laporanLayout';
 import { buildLaporanModel, opsiAwal } from '../../../domain/laporanSesi';
 import type { FotoMeta, OpsiLaporan, Pasien, SesiTerapi } from '../../../domain/types';
 import { createFileGateway, type FileGateway } from '../../../infra/fileGateway';
@@ -10,6 +10,7 @@ import { createShareGateway, type ShareGateway } from '../../../infra/shareGatew
 import { useDialogStack } from '../../components/DialogStack';
 import { useToast } from '../../components/Toast';
 import { useDataStore } from '../../../state/dataStore';
+import { LaporanCanvasPreview } from '../../components/LaporanCanvasPreview';
 
 export interface LaporanSesiFlowProps {
   pasien: Pasien;
@@ -44,6 +45,8 @@ export function LaporanSesiFlow({
 
   const [pdfBytes, setPdfBytes] = useState<Uint8Array | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [halamanPreview, setHalamanPreview] = useState<Halaman[]>([]);
+  const [gambarMapPreview, setGambarMapPreview] = useState<Map<string, { data: ArrayBuffer; mime: string }>>(new Map());
   const [namaFile, setNamaFile] = useState('');
   const [judulBagikan, setJudulBagikan] = useState('');
   const [bisaBerbagi, setBisaBerbagi] = useState(false);
@@ -137,6 +140,8 @@ export function LaporanSesiFlow({
 
       // 4. Susun tata letak halaman
       const halaman = layoutLaporan(model, metrics, logoInfo, fotoInfos);
+      setHalamanPreview(halaman);
+      setGambarMapPreview(gambarMap);
 
       // 5. Render ke Uint8Array
       const bytes = await renderer.render(halaman, gambarMap, model.judulBagikan);
@@ -261,11 +266,13 @@ export function LaporanSesiFlow({
               </button>
             </div>
             <div className="dialog-body laporan-preview-body">
+              <LaporanCanvasPreview halaman={halamanPreview} gambarMap={gambarMapPreview} />
               <iframe
                 src={pdfUrl}
                 title="Pratinjau PDF"
                 className="laporan-pdf-iframe"
                 data-testid="pdf-iframe"
+                style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0, pointerEvents: 'none' }}
               />
               {!bisaBerbagi && (
                 <p className="keterangan-bantu" role="note">

@@ -1,6 +1,8 @@
 // ContactGateway: memilih kontak dari buku telepon perangkat (Req 11).
-// Menggunakan Contact Picker API bawaan peramban/WebView (navigator.contacts).
+// - Android APK (Capacitor native): Menggunakan Intent.ACTION_PICK via ContactPickerPlugin
+// - Web / PWA: Menggunakan Contact Picker API bawaan peramban (navigator.contacts).
 
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { ContactError } from './errors';
 
 export interface KontakTerpilih {
@@ -14,6 +16,10 @@ export interface ContactGateway {
   pilih(): Promise<KontakTerpilih | null>;
 }
 
+interface NativeContactPickerPlugin {
+  pickContact(): Promise<{ name?: string; number?: string } | undefined>;
+}
+
 interface NavigatorWithContacts extends Navigator {
   contacts?: {
     getProperties?(): Promise<string[]>;
@@ -21,17 +27,36 @@ interface NavigatorWithContacts extends Navigator {
   };
 }
 
-export class WebContactGateway implements ContactGateway {
+export class DefaultContactGateway implements ContactGateway {
   private get nav(): NavigatorWithContacts | undefined {
     return typeof navigator !== 'undefined' ? (navigator as NavigatorWithContacts) : undefined;
   }
 
   tersedia(): boolean {
+    if (Capacitor.isNativePlatform()) {
+      return true;
+    }
     const nav = this.nav;
     return !!(nav && 'contacts' in nav && typeof nav.contacts?.select === 'function');
   }
 
   async pilih(): Promise<KontakTerpilih | null> {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const ContactPicker = registerPlugin<NativeContactPickerPlugin>('ContactPicker');
+        const res = await ContactPicker.pickContact();
+        if (!res || !res.number) {
+          return null; // Dibatalkan oleh pengguna
+        }
+        return {
+          nama: res.name ? res.name.trim() : '',
+          nomor: [res.number.trim()],
+        };
+      } catch (err: unknown) {
+        throw new ContactError('Kontak tidak dapat diakses di Android', err);
+      }
+    }
+
     const nav = this.nav;
     if (!nav?.contacts?.select) {
       throw new ContactError('Pemilih kontak tidak didukung di perangkat ini');
@@ -45,7 +70,7 @@ export class WebContactGateway implements ContactGateway {
       const c = hasil[0];
       if (!c) return null;
 
-      const nama = (c.name && c.name[0]) ? c.name[0].trim() : '';
+      const nama = c.name && c.name[0] ? c.name[0].trim() : '';
       const nomor = (c.tel || []).map((t) => t.trim()).filter((t) => t.length > 0);
       return { nama, nomor };
     } catch (err: unknown) {
@@ -57,6 +82,8 @@ export class WebContactGateway implements ContactGateway {
   }
 }
 
+export { DefaultContactGateway as WebContactGateway };
+
 export function createContactGateway(): ContactGateway {
-  return new WebContactGateway();
+  return new DefaultContactGateway();
 }
