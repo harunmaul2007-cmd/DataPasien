@@ -56,6 +56,12 @@ android {
         }
     }
     signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
         if (hasReleaseSigning) {
             release {
                 // Path relatif diselesaikan terhadap direktori android/
@@ -67,6 +73,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             if (hasReleaseSigning) {
                 signingConfig signingConfigs.release

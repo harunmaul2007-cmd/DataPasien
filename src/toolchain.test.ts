@@ -25,7 +25,7 @@ describe('toolchain', () => {
     fc.assert(fc.property(fc.integer(), (n) => n + 0 === n), { numRuns: 100 });
   });
 
-  it('version.json berisi versi awal', () => {
-    expect(version).toEqual({ versionName: '1.0.0', versionCode: 1 });
+  it('version.json berisi versi valid', () => {
+    expect(version).toEqual({ versionName: '1.0.1', versionCode: 2 });
   });
 });

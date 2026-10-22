@@ -7,7 +7,8 @@ playwright-report/
 *.tsbuildinfo
 .vite/
 
-# Kunci_Penandatanganan Android (jangan pernah dikomit)
+# Kunci_Penandatanganan Android (jangan pernah dikomit kecuali debug.keystore publik)
 keystore.properties
 *.jks
 *.keystore
+!android/app/debug.keystore
