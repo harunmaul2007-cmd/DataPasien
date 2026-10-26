@@ -12,6 +12,9 @@ import { FotoStrip } from '../../components/FotoStrip';
 import { InfoPasien } from '../../components/InfoPasien';
 import { PhotoViewer } from '../../components/PhotoViewer';
 import { useToast } from '../../components/Toast';
+import { createClipboardGateway, type ClipboardGateway } from '../../../infra/clipboardGateway';
+import { createExternalLinkGateway, type ExternalLinkGateway } from '../../../infra/externalLink';
+import { BantuanAiDialog, bukaChatGpt } from './BantuanAiDialog';
 import { FotoPicker } from './FotoPicker';
 
 export const PESAN_SESI_TERSIMPAN = 'Sesi terapi berhasil disimpan';
@@ -30,6 +33,9 @@ export interface SesiFormDialogProps {
   onClose: () => void;
   /** Dipanggil setelah sesi berhasil disimpan; pemanggil menutup dialog. Default: onClose. */
   onSaved?: (sesi: SesiTerapi) => void;
+  /** Gateway untuk Bantuan AI (diinjeksi pada pengujian). */
+  linkGateway?: ExternalLinkGateway;
+  clipboardGateway?: ClipboardGateway;
 }
 
 function nilaiAwal(sesi: SesiTerapi | null | undefined, initialTanggal: string | undefined): SesiInput {
@@ -64,9 +70,14 @@ function SesiFormDialogContent({
   initialTanggal,
   onClose,
   onSaved,
+  linkGateway,
+  clipboardGateway,
 }: SesiFormDialogProps): ReactNode {
   const store = useDataStore();
   const toast = useToast();
+  const [linkGw] = useState(() => linkGateway ?? createExternalLinkGateway());
+  const [clipGw] = useState(() => clipboardGateway ?? createClipboardGateway());
+  const [aiOpen, setAiOpen] = useState(false);
   const isEdit = !!sesi;
   const formId = isEdit ? `sesi-form-${sesi.id}` : `sesi-form-baru-${pasienId}`;
 
@@ -159,6 +170,18 @@ function SesiFormDialogContent({
 
   const tombolSimpanDisabled = saving || draft.memproses;
 
+  // Bantuan AI: butuh keluhan sebagai dasar pertanyaan ke ChatGPT.
+  function bukaBantuanAi() {
+    if (values.keluhan.trim() === '') {
+      setErrors((e) => ({ ...e, keluhan: 'Isi keluhan terlebih dahulu untuk Bantuan AI' }));
+      return;
+    }
+    setAiOpen(true);
+    void bukaChatGpt(values.keluhan, linkGw, clipGw).then((ok) => {
+      if (!ok) toast.error('ChatGPT tidak dapat dibuka');
+    });
+  }
+
   return (
     <>
       <Dialog
@@ -214,6 +237,11 @@ function SesiFormDialogContent({
             error={errors.polaPenyakit}
             hint="Opsional"
           />
+          <div className="bantuan-ai__pemicu">
+            <button type="button" className="btn" onClick={bukaBantuanAi} disabled={tombolSimpanDisabled}>
+              Bantuan AI
+            </button>
+          </div>
           <TextAreaField
             label="Terapi yang diberikan"
             name="terapi"
@@ -262,6 +290,20 @@ function SesiFormDialogContent({
           </div>
         </form>
       </Dialog>
+
+      {aiOpen && (
+        <BantuanAiDialog
+          keluhan={values.keluhan}
+          linkGateway={linkGw}
+          clipboardGateway={clipGw}
+          onClose={() => setAiOpen(false)}
+          onApply={(isian) => {
+            setValues((v) => ({ ...v, ...isian }));
+            setErrors((e) => ({ ...e, polaPenyakit: undefined, terapi: undefined }));
+            setAiOpen(false);
+          }}
+        />
+      )}
 
       {viewerIndex !== null && (
         <PhotoViewer

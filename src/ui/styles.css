@@ -1036,3 +1036,38 @@ textarea.field__input {
 }
 
 
+
+/* ---- Bantuan AI (kolom Diagnosa) ---- */
+.bantuan-ai__pemicu {
+  display: flex;
+  justify-content: flex-end;
+  margin: calc(-1 * var(--space-2)) 0 var(--space-3);
+}
+
+.bantuan-ai__langkah {
+  margin: 0 0 var(--space-2);
+  padding-left: var(--space-5, 1.25rem);
+}
+
+.bantuan-ai__aksi {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.bantuan-ai__pratinjau {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  white-space: pre-line;
+}
+
+.bantuan-ai__pratinjau dt {
+  font-weight: 600;
+}
+
+.bantuan-ai__pratinjau dd {
+  margin: 0 0 var(--space-2);
+}
