@@ -26,6 +26,6 @@ describe('toolchain', () => {
   });
 
   it('version.json berisi versi valid', () => {
-    expect(version).toEqual({ versionName: '1.0.1', versionCode: 2 });
+    expect(version).toEqual({ versionName: '1.0.2', versionCode: 3 });
   });
 });

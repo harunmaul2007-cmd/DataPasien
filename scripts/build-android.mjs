@@ -347,7 +347,8 @@ export function createBuildSteps(options) {
       run: () => {
         // Hapus APK lama agar yang disalin pasti hasil build ini.
         rmSync(tempApk, { force: true });
-        exec(process.execPath, [path.join(rootDir, 'node_modules', 'vite', 'bin', 'vite.js'), 'build'], {
+        // --mode android: tanpa service worker (lihat vite.config.ts).
+        exec(process.execPath, [path.join(rootDir, 'node_modules', 'vite', 'bin', 'vite.js'), 'build', '--mode', 'android'], {
           cwd: rootDir,
           env,
         });

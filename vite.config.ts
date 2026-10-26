@@ -10,13 +10,20 @@ import { VitePWA } from 'vite-plugin-pwa';
 //   aset hasil build; pendaftaran disuntikkan sebagai <script> registerSW.js
 //   di index.html (injectRegister: 'script') sehingga main.tsx dan Vitest/jsdom
 //   tidak tersentuh. Ikon di public/icons diturunkan dari assets/icon.png.
-export default defineConfig({
+// - Mode "android" (dipakai scripts/build-android.mjs): APK sudah membawa
+//   seluruh aset sehingga service worker tidak diperlukan. SW justru membuat
+//   WebView terus menyajikan versi lama dari cache setelah APK diperbarui.
+//   Maka skrip pendaftaran tidak disuntikkan, dan sw.js diganti versi
+//   "self-destroying" yang menghapus cache + SW lama di perangkat yang sudah
+//   terpasang, lalu memuat ulang halaman dari aset APK baru.
+export default defineConfig(({ mode }) => ({
   base: './',
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script',
+      injectRegister: mode === 'android' ? false : 'script',
+      selfDestroying: mode === 'android',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
         name: 'Data Pasien',
@@ -64,4 +71,4 @@ export default defineConfig({
       exclude: ['src/**/__tests__/**'],
     },
   },
-});
+}));
