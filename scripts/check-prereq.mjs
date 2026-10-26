@@ -112,11 +112,53 @@ export function readJavaVersionOutput(env = process.env) {
 }
 
 /**
+ * Baca variabel lingkungan dari registry Windows HKCU\Environment bila belum ada di process.env.
+ * @param {string} varName
+ * @returns {string | null}
+ */
+export function queryRegistryEnv(varName) {
+  if (process.platform !== 'win32') return null;
+  try {
+    const r = spawnSync('reg', ['query', 'HKCU\\Environment', '/v', varName], { encoding: 'utf8', windowsHide: true });
+    if (r.status === 0 && r.stdout) {
+      const match = new RegExp(`${varName}\\s+REG_\\w+\\s+(.+)`, 'i').exec(r.stdout);
+      if (match) return match[1].trim();
+    }
+  } catch {
+    // abaikan kesalahan reg query
+  }
+  return null;
+}
+
+/**
+ * Lengkapi env dengan nilai dari registry (Windows) bila JAVA_HOME / ANDROID_HOME kosong.
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {NodeJS.ProcessEnv}
+ */
+export function enrichSystemEnv(env = process.env) {
+  if (process.platform !== 'win32') return env;
+  if (!env.JAVA_HOME) {
+    const regJava = queryRegistryEnv('JAVA_HOME');
+    if (regJava) env.JAVA_HOME = regJava;
+  }
+  if (!env.ANDROID_HOME) {
+    const regAndroid = queryRegistryEnv('ANDROID_HOME');
+    if (regAndroid) env.ANDROID_HOME = regAndroid;
+  }
+  if (env.JAVA_HOME && (!env.PATH || !env.PATH.toLowerCase().includes(env.JAVA_HOME.toLowerCase()))) {
+    const binDir = path.join(env.JAVA_HOME, 'bin');
+    env.PATH = `${binDir};${env.PATH ?? ''}`;
+  }
+  return env;
+}
+
+/**
  * Kumpulkan informasi prasyarat dari sistem nyata.
  * @param {NodeJS.ProcessEnv} env
  */
 export function collectPrereqInfo(env = process.env) {
-  const androidHome = env.ANDROID_HOME ?? null;
+  const activeEnv = enrichSystemEnv(env);
+  const androidHome = activeEnv.ANDROID_HOME ?? null;
   let androidHomeExists;
   if (androidHome && androidHome.trim() !== '') {
     try {
@@ -127,7 +169,7 @@ export function collectPrereqInfo(env = process.env) {
   }
   return {
     nodeVersion: process.version,
-    javaVersionOutput: readJavaVersionOutput(env),
+    javaVersionOutput: readJavaVersionOutput(activeEnv),
     androidHome,
     androidHomeExists,
   };

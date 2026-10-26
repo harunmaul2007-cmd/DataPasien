@@ -1,3 +1,5 @@
+@import './theme.css';
+
 /* Token CSS global dan tata letak aplikasi.
  * - Area sentuh minimal 44×44 px untuk semua elemen interaktif (Req 11.3)
  * - max-width: 100% dan overflow-wrap: anywhere mencegah scroll horizontal 360–1920 px (Req 11.1)
@@ -137,9 +139,10 @@ button {
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-btn-default-border, var(--color-border));
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-btn-default-bg, var(--color-surface));
+  color: var(--color-btn-default-text, var(--color-text));
   cursor: pointer;
   text-decoration: none;
 }
@@ -338,9 +341,10 @@ button {
 .field__input {
   width: 100%;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-input-border, var(--color-border));
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-input-bg, var(--color-surface));
+  color: var(--color-input-text, var(--color-text));
 }
 
 textarea.field__input {
@@ -369,14 +373,15 @@ textarea.field__input {
   max-height: calc(100dvh - 2 * var(--space-4));
   overflow: auto;
   padding: var(--space-4);
-  border: 0;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
-  background: var(--color-surface);
+  background: var(--color-dialog-bg, var(--color-surface));
   color: var(--color-text);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
 .dialog::backdrop {
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--color-dialog-backdrop, rgba(0, 0, 0, 0.45));
 }
 
 .dialog__title {

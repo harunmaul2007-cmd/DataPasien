@@ -14,7 +14,7 @@
 import { createContext, createElement, useContext, useSyncExternalStore, type ReactNode } from 'react';
 import { buildHistori, type Histori } from '../domain/histori';
 import { newId as defaultNewId } from '../domain/ids';
-import { aksiTersedia, jadwalPadaTanggal, jadwalTerjadwalPasien, transisiStatus } from '../domain/jadwal';
+import { aksiTersedia, jadwalPadaTanggal, jadwalTerjadwalPasien, semuaJadwal, transisiStatus } from '../domain/jadwal';
 import { buildLaporan, type Laporan } from '../domain/laporan';
 import { deletionSummary, searchPasien } from '../domain/pasienQuery';
 import { backupFileName, parseBackup, serializeBackup, type ParseBackupResult } from '../domain/cadangan';
@@ -194,6 +194,7 @@ export class DataStore {
   private readonly memoHistori = new RefMemo<Histori>();
   private readonly memoJadwalTanggal = new RefMemo<JadwalKunjungan[]>();
   private readonly memoJadwalPasien = new RefMemo<JadwalKunjungan[]>();
+  private readonly memoSemuaJadwal = new RefMemo<JadwalKunjungan[]>();
   private readonly memoLaporan = new RefMemo<Laporan>();
   private readonly memoSummary = new RefMemo<{ jumlahSesi: number; jumlahJadwal: number; jumlahFoto: number }>();
   private readonly memoFotoSesi = new RefMemo<FotoMeta[]>();
@@ -689,6 +690,11 @@ export class DataStore {
   selectJadwalTerjadwalPasien(pasienId: string): JadwalKunjungan[] {
     const { jadwal } = this.state.data;
     return this.memoJadwalPasien.get([jadwal], pasienId, () => jadwalTerjadwalPasien(pasienId, jadwal));
+  }
+
+  selectSemuaJadwal(): JadwalKunjungan[] {
+    const { jadwal } = this.state.data;
+    return this.memoSemuaJadwal.get([jadwal], 'semua', () => semuaJadwal(jadwal));
   }
 
   selectLaporan(bulan: number, tahun: number): Laporan {

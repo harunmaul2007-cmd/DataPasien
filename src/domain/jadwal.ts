@@ -39,6 +39,16 @@ export function jadwalTerjadwalPasien(
 }
 
 /**
+ * Seluruh jadwal yang ada (semua status), urut tanggal menaik lalu jam menaik.
+ * Tie-break: createdAt lalu id.
+ */
+export function semuaJadwal(jadwal: JadwalKunjungan[]): JadwalKunjungan[] {
+  return [...jadwal].sort(
+    (a, b) => cmpStr(a.tanggal, b.tanggal) || cmpStr(a.jam, b.jam) || cmpTieBreak(a, b),
+  );
+}
+
+/**
  * Transisi status dari Terjadwal ke Selesai/Dibatalkan (Req 8.9, 8.10).
  * Mengembalikan null jika status awal bukan Terjadwal (Req 8.14).
  *

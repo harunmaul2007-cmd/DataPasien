@@ -12,9 +12,24 @@
   margin: 0;
 }
 
-.jadwal-page__tanggal {
+.jadwal-page__filter-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
   margin: var(--space-4) 0;
+}
+
+.jadwal-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.jadwal-page__tanggal {
+  margin: 0;
   max-width: 20rem;
+  flex: 1 1 200px;
 }
 
 .jadwal-page__empty {

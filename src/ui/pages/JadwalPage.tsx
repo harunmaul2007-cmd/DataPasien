@@ -28,6 +28,7 @@ export const JUDUL_TAWARAN_SESI = 'Catat sesi terapi sekarang?';
 
 type FormState = { mode: 'tambah' } | { mode: 'ubah'; jadwal: JadwalKunjungan } | null;
 type SesiTarget = { pasienId: string; tanggal: string };
+type FilterMode = 'semua' | 'tanggal';
 
 export function JadwalPage(): ReactNode {
   const store = useDataStore();
@@ -37,6 +38,8 @@ export function JadwalPage(): ReactNode {
   const baseId = useId();
   const tanggalId = `${baseId}-tanggal`;
 
+  // Default awal adalah 'semua' agar seluruh data jadwal yang sudah ada langsung tampil.
+  const [filterMode, setFilterMode] = useState<FilterMode>('semua');
   const [tanggal, setTanggal] = useState(() => todayISO(new Date()));
   const [form, setForm] = useState<FormState>(null);
   const [hapus, setHapus] = useState<JadwalKunjungan | null>(null);
@@ -44,7 +47,8 @@ export function JadwalPage(): ReactNode {
   const [sesiTarget, setSesiTarget] = useState<SesiTarget | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
-  const list = store.selectJadwalPadaTanggal(tanggal);
+  const semuaJadwalList = store.selectSemuaJadwal();
+  const list = filterMode === 'semua' ? semuaJadwalList : store.selectJadwalPadaTanggal(tanggal);
   const namaPasien = (id: string) => store.selectPasien(id)?.nama ?? '-';
 
   async function ubahStatus(j: JadwalKunjungan, target: 'Selesai' | 'Dibatalkan') {
@@ -75,18 +79,45 @@ export function JadwalPage(): ReactNode {
         </button>
       </div>
 
-      <div className="field jadwal-page__tanggal">
-        <label htmlFor={tanggalId} className="field__label">
-          Tanggal
-        </label>
-        <input
-          id={tanggalId}
-          type="date"
-          className="field__input"
-          value={tanggal}
-          // Input dikosongkan (mis. tombol hapus peramban) → kembali ke hari ini.
-          onChange={(e) => setTanggal(e.target.value || todayISO(new Date()))}
-        />
+      <div className="jadwal-page__filter-wrapper">
+        <div className="jadwal-filter-bar" role="group" aria-label="Filter Jadwal">
+          <button
+            type="button"
+            className={`btn${filterMode === 'semua' ? ' btn--primary' : ''}`}
+            onClick={() => setFilterMode('semua')}
+            data-testid="filter-semua-jadwal"
+          >
+            Semua Jadwal ({semuaJadwalList.length})
+          </button>
+          <button
+            type="button"
+            className={`btn${filterMode === 'tanggal' && tanggal === todayISO(new Date()) ? ' btn--primary' : ''}`}
+            onClick={() => {
+              setTanggal(todayISO(new Date()));
+              setFilterMode('tanggal');
+            }}
+            data-testid="filter-hari-ini"
+          >
+            Hari Ini
+          </button>
+        </div>
+
+        <div className="field jadwal-page__tanggal">
+          <label htmlFor={tanggalId} className="field__label">
+            Tanggal
+          </label>
+          <input
+            id={tanggalId}
+            type="date"
+            className="field__input"
+            value={tanggal}
+            // Input dikosongkan (mis. tombol hapus peramban) → kembali ke hari ini.
+            onChange={(e) => {
+              setTanggal(e.target.value || todayISO(new Date()));
+              setFilterMode('tanggal');
+            }}
+          />
+        </div>
       </div>
 
       {list.length === 0 ? (
@@ -119,6 +150,7 @@ export function JadwalPage(): ReactNode {
           setForm(null);
           // Tampilkan tanggal jadwal yang baru disimpan (Req 8.1, 8.7).
           setTanggal(j.tanggal);
+          setFilterMode('tanggal');
         }}
       />
 

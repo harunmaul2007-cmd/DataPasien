@@ -183,4 +183,32 @@ describe('JadwalPage', () => {
     expect(screen.getAllByTestId('jadwal-item')).toHaveLength(1);
     expect(screen.getByTestId('jadwal-status')).toHaveTextContent('Terjadwal');
   });
+
+  it('secara default data yang tampil awal adalah jadwal yang sudah ada (Req user #3)', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore();
+    const p1 = await seedPasien(store, 'Pasien Satu');
+    const p2 = await seedPasien(store, 'Pasien Dua');
+    // Jadwal tanggal berbeda (bukan hari ini)
+    await seedJadwal(store, p1.id, '09:00', '2025-05-20');
+    await seedJadwal(store, p2.id, '14:00', '2025-06-15');
+
+    renderPage(store);
+
+    // Tanpa harus memilih tanggal, kedua jadwal yang sudah ada langsung tampil
+    const items = screen.getAllByTestId('jadwal-item');
+    expect(items).toHaveLength(2);
+    expect(screen.getByText('Pasien Satu')).toBeInTheDocument();
+    expect(screen.getByText('Pasien Dua')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Semua Jadwal (2)' })).toBeInTheDocument();
+
+    // Memilih Hari Ini (saat tidak ada jadwal pada hari ini) menampilkan pesan kosong
+    await user.click(screen.getByTestId('filter-hari-ini'));
+    expect(screen.getByText(PESAN_TIDAK_ADA_JADWAL)).toBeInTheDocument();
+    expect(screen.queryAllByTestId('jadwal-item')).toHaveLength(0);
+
+    // Mengklik kembali "Semua Jadwal" menampilkan kembali seluruh jadwal
+    await user.click(screen.getByTestId('filter-semua-jadwal'));
+    expect(screen.getAllByTestId('jadwal-item')).toHaveLength(2);
+  });
 });

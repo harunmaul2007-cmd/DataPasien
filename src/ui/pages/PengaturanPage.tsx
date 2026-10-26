@@ -1,9 +1,12 @@
-// Halaman Pengaturan Praktik dan Kop Laporan (Requirement 7, 10).
+// Halaman Pengaturan Praktik dan Kop Laporan (Requirement 7, 10),
+// ditambah pilihan tema tampilan dan informasi aplikasi.
 
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import type { DraftLogo, FieldErrors, PengaturanField, PengaturanInput } from '../../domain/types';
 import { useDataStore } from '../../state/dataStore';
+import { AppCreatorInfo } from '../components/AppCreatorInfo';
 import { TextAreaField, TextField } from '../components/Field';
+import { ThemePicker } from '../components/ThemePicker';
 import { useToast } from '../components/Toast';
 import { LogoPicker } from './pengaturan/LogoPicker';
 
@@ -139,6 +142,16 @@ export function PengaturanPage(): ReactNode {
           </button>
         </div>
       </form>
+
+      <div className="pengaturan-section" style={{ marginTop: 'var(--space-6)' }}>
+        <h2 id="tema-judul">Tema Tampilan Aplikasi</h2>
+        <ThemePicker />
+      </div>
+
+      <div className="pengaturan-section" style={{ marginTop: 'var(--space-6)' }}>
+        <h2 id="creator-judul">Tentang Aplikasi</h2>
+        <AppCreatorInfo />
+      </div>
     </section>
   );
 }

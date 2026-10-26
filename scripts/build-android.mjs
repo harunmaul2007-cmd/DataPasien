@@ -18,7 +18,7 @@ import { spawnSync } from 'node:child_process';
 import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PREREQ_STEP_NAME, isMainModule, runPrereqCheck } from './check-prereq.mjs';
+import { PREREQ_STEP_NAME, enrichSystemEnv, isMainModule, runPrereqCheck } from './check-prereq.mjs';
 
 export const VERSION_NAME_PATTERN = /^\d+\.\d+\.\d+$/;
 export const MODES = /** @type {const} */ (['debug', 'release']);
@@ -268,7 +268,7 @@ export function createBuildSteps(options) {
   const {
     mode,
     rootDir = DEFAULT_ROOT_DIR,
-    env = process.env,
+    env = options.env ?? enrichSystemEnv(process.env),
     exec = defaultExec,
     platform = process.platform,
     log = console.log,

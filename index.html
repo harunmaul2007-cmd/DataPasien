@@ -7,6 +7,14 @@
     <link rel="icon" type="image/png" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <title>Data Pasien</title>
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('datapasien-theme') || 'medis-biru';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

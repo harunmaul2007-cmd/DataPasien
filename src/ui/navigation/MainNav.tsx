@@ -5,6 +5,7 @@
 
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { APP_INFO } from '../../domain/appInfo';
 import { MAIN_NAV, ROUTES, SETTINGS_NAV, type NavItem } from './routes';
 
 /** Menu aktif: Pasien juga aktif pada halaman detail pasien. */
@@ -45,6 +46,10 @@ export function MainNav(): ReactNode {
           <NavItemLink item={SETTINGS_NAV} iconOnly pathname={pathname} />
         </li>
       </ul>
+      <div className="nav__footer" aria-hidden="true">
+        <span className="nav__footer-brand">{APP_INFO.creatorNama}</span>
+        <span>v{APP_INFO.versionName}</span>
+      </div>
     </nav>
   );
 }

@@ -1,0 +1,382 @@
+/* Token dan variabel tema visual aplikasi. */
+
+:root,
+[data-theme='medis-biru'] {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-text: #1b1f24;
+  --color-muted: #5b6470;
+  --color-border: #d0d5dc;
+  --color-primary: #0b5cad;
+  --color-primary-text: #ffffff;
+  --color-primary-hover: #094a8f;
+  --color-danger: #b42318;
+  --color-success: #1e7a3c;
+  --color-focus: #f5a623;
+
+  --color-input-bg: var(--color-surface);
+  --color-input-text: var(--color-text);
+  --color-input-border: var(--color-border);
+  --color-dialog-bg: var(--color-surface);
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.45);
+  --color-btn-default-bg: var(--color-surface);
+  --color-btn-default-text: var(--color-text);
+  --color-btn-default-border: var(--color-border);
+  --color-nav-active-bg: rgba(11, 92, 173, 0.1);
+  --color-info-bg: #edf3f9;
+  --color-info-border: #c9dced;
+}
+
+[data-theme='emerald-sehat'] {
+  --color-bg: #f0fdf4;
+  --color-surface: #ffffff;
+  --color-text: #0f172a;
+  --color-muted: #475569;
+  --color-border: #bbf7d0;
+  --color-primary: #0d9488;
+  --color-primary-text: #ffffff;
+  --color-primary-hover: #0f766e;
+  --color-danger: #b42318;
+  --color-success: #1e7a3c;
+  --color-focus: #10b981;
+
+  --color-input-bg: #ffffff;
+  --color-input-text: #0f172a;
+  --color-input-border: #99f6e4;
+  --color-dialog-bg: #ffffff;
+  --color-dialog-backdrop: rgba(15, 23, 42, 0.5);
+  --color-btn-default-bg: #ffffff;
+  --color-btn-default-text: #0f172a;
+  --color-btn-default-border: #bbf7d0;
+  --color-nav-active-bg: rgba(13, 148, 136, 0.12);
+  --color-info-bg: #ecfdf5;
+  --color-info-border: #a7f3d0;
+}
+
+[data-theme='midnight-dark'] {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #f8fafc;
+  --color-muted: #94a3b8;
+  --color-border: #334155;
+  --color-primary: #38bdf8;
+  --color-primary-text: #0f172a;
+  --color-primary-hover: #7dd3fc;
+  --color-danger: #f87171;
+  --color-success: #34d399;
+  --color-focus: #38bdf8;
+
+  --color-input-bg: #0b1120;
+  --color-input-text: #f8fafc;
+  --color-input-border: #475569;
+  --color-dialog-bg: #1e293b;
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.75);
+  --color-btn-default-bg: #1e293b;
+  --color-btn-default-text: #f8fafc;
+  --color-btn-default-border: #475569;
+  --color-nav-active-bg: rgba(56, 189, 248, 0.15);
+  --color-info-bg: #172554;
+  --color-info-border: #1e3a8a;
+}
+
+[data-theme='amethyst-ungu'] {
+  --color-bg: #faf5ff;
+  --color-surface: #ffffff;
+  --color-text: #1e1b4b;
+  --color-muted: #6b7280;
+  --color-border: #e9d5ff;
+  --color-primary: #7c3aed;
+  --color-primary-text: #ffffff;
+  --color-primary-hover: #6d28d9;
+  --color-danger: #b42318;
+  --color-success: #1e7a3c;
+  --color-focus: #a855f7;
+
+  --color-input-bg: #ffffff;
+  --color-input-text: #1e1b4b;
+  --color-input-border: #ddd6fe;
+  --color-dialog-bg: #ffffff;
+  --color-dialog-backdrop: rgba(30, 27, 75, 0.45);
+  --color-btn-default-bg: #ffffff;
+  --color-btn-default-text: #1e1b4b;
+  --color-btn-default-border: #e9d5ff;
+  --color-nav-active-bg: rgba(124, 58, 237, 0.12);
+  --color-info-bg: #f3e8ff;
+  --color-info-border: #d8b4fe;
+}
+
+[data-theme='sunset-hangat'] {
+  --color-bg: #fff7ed;
+  --color-surface: #ffffff;
+  --color-text: #27272a;
+  --color-muted: #71717a;
+  --color-border: #fed7aa;
+  --color-primary: #ea580c;
+  --color-primary-text: #ffffff;
+  --color-primary-hover: #c2410c;
+  --color-danger: #b42318;
+  --color-success: #1e7a3c;
+  --color-focus: #f97316;
+
+  --color-input-bg: #ffffff;
+  --color-input-text: #27272a;
+  --color-input-border: #fdba74;
+  --color-dialog-bg: #ffffff;
+  --color-dialog-backdrop: rgba(41, 29, 22, 0.45);
+  --color-btn-default-bg: #ffffff;
+  --color-btn-default-text: #27272a;
+  --color-btn-default-border: #fed7aa;
+  --color-nav-active-bg: rgba(234, 88, 12, 0.12);
+  --color-info-bg: #ffedd5;
+  --color-info-border: #fed7aa;
+}
+
+[data-theme='cyber-dark'] {
+  --color-bg: #000000;
+  --color-surface: #121214;
+  --color-text: #fafafa;
+  --color-muted: #a1a1aa;
+  --color-border: #27272a;
+  --color-primary: #10b981;
+  --color-primary-text: #000000;
+  --color-primary-hover: #34d399;
+  --color-danger: #f87171;
+  --color-success: #10b981;
+  --color-focus: #10b981;
+
+  --color-input-bg: #09090b;
+  --color-input-text: #fafafa;
+  --color-input-border: #3f3f46;
+  --color-dialog-bg: #121214;
+  --color-dialog-backdrop: rgba(0, 0, 0, 0.85);
+  --color-btn-default-bg: #18181b;
+  --color-btn-default-text: #fafafa;
+  --color-btn-default-border: #27272a;
+  --color-nav-active-bg: rgba(16, 185, 129, 0.15);
+  --color-info-bg: #18181b;
+  --color-info-border: #27272a;
+}
+
+/* Transisi halus ketika tema berganti */
+html,
+body,
+.app,
+.nav,
+.page,
+.card,
+.dialog,
+.dialog-box,
+.btn,
+.field__input,
+.pasien-card,
+.jadwal-card,
+.laporan__kartu,
+.pengaturan-card,
+.histori-item,
+.pasien-detail__card {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease;
+}
+
+/* ---- Komponen Pemilih Tema ---- */
+.theme-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.theme-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  min-height: var(--touch-min);
+}
+
+.theme-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary);
+}
+
+.theme-card--active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.theme-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.theme-card__nama {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.theme-card__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.theme-card__desc {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+  margin: 0;
+  flex: 1;
+}
+
+.theme-card__preview {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-top: var(--space-1);
+}
+
+.theme-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ---- Komponen Info Creator & Versi ---- */
+.app-creator-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.app-creator-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  align-items: center;
+  text-align: center;
+  padding: var(--space-2) 0;
+}
+
+@media (min-width: 480px) {
+  .app-creator-header {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+    gap: var(--space-4);
+  }
+}
+
+.app-creator-logo-box {
+  width: 130px;
+  max-width: 100%;
+  height: 80px;
+  background: #ffffff;
+  border-radius: var(--radius);
+  padding: var(--space-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.app-creator-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.app-creator-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.app-creator-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.app-creator-tagline {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.app-creator-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.app-badge-version {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-nav-active-bg, rgba(11, 92, 173, 0.1));
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.8125rem;
+  border: 1px solid currentColor;
+}
+
+.app-creator-deskripsi {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin: 0;
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+}
+
+/* Footer navigasi desktop untuk versi & creator */
+.nav__footer {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .nav__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: auto;
+    padding: var(--space-3) var(--space-2);
+    border-top: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    line-height: 1.3;
+  }
+
+  .nav__footer-brand {
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+}

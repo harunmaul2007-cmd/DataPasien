@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aksiTersedia, jadwalPadaTanggal, jadwalTerjadwalPasien, transisiStatus } from './jadwal';
+import { aksiTersedia, jadwalPadaTanggal, jadwalTerjadwalPasien, semuaJadwal, transisiStatus } from './jadwal';
 import type { JadwalKunjungan } from './types';
 
 function mk(over: Partial<JadwalKunjungan>): JadwalKunjungan {
@@ -57,6 +57,18 @@ describe('jadwalTerjadwalPasien', () => {
     ];
     expect(jadwalTerjadwalPasien('p1', list).map((j) => j.id)).toEqual(['c', 'b', 'a']);
     expect(jadwalTerjadwalPasien('p3', list)).toEqual([]);
+  });
+});
+
+describe('semuaJadwal', () => {
+  it('mengembalikan seluruh jadwal terurut berdasarkan tanggal lalu jam menaik', () => {
+    const list = [
+      mk({ id: 'a', tanggal: '2025-03-15', jam: '14:00' }),
+      mk({ id: 'b', tanggal: '2025-02-10', jam: '11:00' }),
+      mk({ id: 'c', tanggal: '2025-02-10', jam: '09:00' }),
+      mk({ id: 'd', tanggal: '2025-04-01', jam: '08:00' }),
+    ];
+    expect(semuaJadwal(list).map((j) => j.id)).toEqual(['c', 'b', 'a', 'd']);
   });
 });
 
