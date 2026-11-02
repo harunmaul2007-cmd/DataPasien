@@ -92,7 +92,8 @@ describe('JadwalPage', () => {
     await user.click(screen.getByRole('button', { name: 'Tandai Selesai Budi Santoso 09:30' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: JUDUL_TAWARAN_SESI })).toBeInTheDocument());
     expect(store.getState().data.jadwal.find((x) => x.id === j.id)?.status).toBe('Selesai');
-    expect(screen.getByTestId('jadwal-status')).toHaveTextContent('Selesai');
+    // Jadwal tidak lagi berstatus Baru, sehingga keluar dari daftar default.
+    expect(screen.queryAllByTestId('jadwal-item')).toHaveLength(0);
 
     await user.click(within(dialog()).getByRole('button', { name: 'Ya, catat sesi' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Tambah Sesi Terapi' })).toBeInTheDocument());
@@ -126,10 +127,12 @@ describe('JadwalPage', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(screen.queryByRole('heading', { name: 'Tambah Sesi Terapi' })).not.toBeInTheDocument();
     expect(store.getState().data.sesi).toHaveLength(0);
+    await user.click(screen.getByTestId('filter-status-selesai'));
     expect(screen.getByTestId('jadwal-status')).toHaveTextContent('Selesai');
   });
 
   it('jadwal Selesai/Dibatalkan hanya menyediakan Hapus; Terjadwal menyediakan semua aksi (Req 8.14)', async () => {
+    const user = userEvent.setup();
     const store = await freshStore();
     const p = await seedPasien(store);
     const selesai = await seedJadwal(store, p.id, '08:00');
@@ -140,25 +143,54 @@ describe('JadwalPage', () => {
     renderPage(store);
     pilihTanggal(TANGGAL);
 
-    for (const jam of ['08:00', '10:00']) {
-      const label = `Budi Santoso ${jam}`;
-      expect(screen.queryByRole('button', { name: `Tandai Selesai ${label}` })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: `Tandai Dibatalkan ${label}` })).not.toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: `Ubah jadwal ${label}` })).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: `Hapus jadwal ${label}` })).toBeInTheDocument();
-    }
-
+    // Default: hanya jadwal Baru (Terjadwal), dengan semua aksi.
     const label = 'Budi Santoso 12:00';
+    expect(screen.getAllByTestId('jadwal-status').map((el) => el.textContent)).toEqual(['Terjadwal']);
     expect(screen.getByRole('button', { name: `Tandai Selesai ${label}` })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Tandai Dibatalkan ${label}` })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Ubah jadwal ${label}` })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: `Hapus jadwal ${label}` })).toBeInTheDocument();
 
-    expect(screen.getAllByTestId('jadwal-status').map((el) => el.textContent)).toEqual([
-      'Selesai',
-      'Dibatalkan',
-      'Terjadwal',
-    ]);
+    for (const [filter, jam, status] of [
+      ['filter-status-selesai', '08:00', 'Selesai'],
+      ['filter-status-dibatalkan', '10:00', 'Dibatalkan'],
+    ] as const) {
+      await user.click(screen.getByTestId(filter));
+      const l = `Budi Santoso ${jam}`;
+      expect(screen.getAllByTestId('jadwal-status').map((el) => el.textContent)).toEqual([status]);
+      expect(screen.queryByRole('button', { name: `Tandai Selesai ${l}` })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: `Tandai Dibatalkan ${l}` })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: `Ubah jadwal ${l}` })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: `Hapus jadwal ${l}` })).toBeInTheDocument();
+    }
+  });
+
+  it('filter status: default Baru, jumlah per status, dan pesan kosong per status (Req user)', async () => {
+    const user = userEvent.setup();
+    const store = await freshStore();
+    const p = await seedPasien(store);
+    const a = await seedJadwal(store, p.id, '08:00');
+    await seedJadwal(store, p.id, '09:00');
+    await seedJadwal(store, p.id, '10:00');
+    await store.tandaiSelesai(a.id);
+    renderPage(store);
+
+    const baru = screen.getByTestId('filter-status-terjadwal');
+    expect(baru).toHaveTextContent('Baru (2)');
+    expect(baru).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByTestId('filter-status-selesai')).toHaveTextContent('Selesai (1)');
+    expect(screen.getByTestId('filter-status-dibatalkan')).toHaveTextContent('Dibatalkan (0)');
+    expect(screen.getByRole('button', { name: 'Semua Jadwal (2)' })).toBeInTheDocument();
+    expect(screen.getAllByTestId('jadwal-status').map((el) => el.textContent)).toEqual(['Terjadwal', 'Terjadwal']);
+
+    await user.click(screen.getByTestId('filter-status-dibatalkan'));
+    expect(screen.getByText('Tidak ada jadwal dibatalkan')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Semua Jadwal (0)' })).toBeInTheDocument();
+
+    // Pesan kosong dengan filter tanggal
+    pilihTanggal('2025-03-11');
+    expect(screen.getByText('Tidak ada jadwal dibatalkan pada tanggal ini')).toBeInTheDocument();
+    expect(screen.getByTestId('filter-status-terjadwal')).toHaveTextContent('Baru (0)');
   });
 
   it('dialog hapus menyebut nama, tanggal, jam; Batal mempertahankan jadwal (Req 8.13)', async () => {

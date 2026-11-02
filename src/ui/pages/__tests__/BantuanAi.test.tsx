@@ -22,8 +22,13 @@ afterEach(async () => {
   for (const r of repos) await r.db.delete();
 });
 
-const JAWABAN =
-  'DIAGNOSA TCM: Yao Tong (nyeri pinggang)\nPOLA: Defisiensi Yang Ginjal\nPRINSIP TERAPI: Menghangatkan dan menguatkan Yang Ginjal';
+const JAWABAN = [
+  'SYSTEM TUBUH YANG TERDAMPAK: Ginjal dan pinggang',
+  'POLA GANGGUAN (DEFISIENSI, STAGNASI, PANAS, DINGIN, LEMBAB): Defisiensi, Dingin',
+  'POLA TCM: Defisiensi Yang Ginjal',
+  'MEKANISME: Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+  'PRINSIP TERAPI: Menghangatkan dan menguatkan Yang Ginjal',
+].join('\n');
 
 async function setup() {
   const repo = await openRepository(`test-bantuan-ai-${Date.now()}-${counter++}`, { requestPersist: false });
@@ -107,7 +112,12 @@ describe('Bantuan AI pada formulir sesi', () => {
 
     expect(screen.queryByRole('dialog', { name: 'Bantuan AI (TCM)' })).not.toBeInTheDocument();
     expect(within(formDialog).getByLabelText('Diagnosa')).toHaveValue(
-      'Yao Tong (nyeri pinggang)\nPola: Defisiensi Yang Ginjal',
+      [
+        'System tubuh yang terdampak: Ginjal dan pinggang',
+        'Pola gangguan: Defisiensi, Dingin',
+        'Pola TCM: Defisiensi Yang Ginjal',
+        'Mekanisme: Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+      ].join('\n'),
     );
     expect(within(formDialog).getByLabelText('Terapi yang diberikan')).toHaveValue(
       'Prinsip terapi: Menghangatkan dan menguatkan Yang Ginjal',
@@ -129,10 +139,10 @@ describe('Bantuan AI pada formulir sesi', () => {
 
     await user.clear(textarea);
     await user.click(textarea);
-    await user.paste('Diagnosa: Ke Sou\nPola: Lembap-dahak di Paru\nPrinsip terapi: Mengeringkan lembap, mengubah dahak');
+    await user.paste('Pola TCM: Lembap-dahak di Paru\nPrinsip terapi: Mengeringkan lembap, mengubah dahak');
     await user.click(within(ai).getByRole('button', { name: 'Copy ke Formulir' }));
 
-    expect(within(formDialog).getByLabelText('Diagnosa')).toHaveValue('Ke Sou\nPola: Lembap-dahak di Paru');
+    expect(within(formDialog).getByLabelText('Diagnosa')).toHaveValue('Pola TCM: Lembap-dahak di Paru');
     expect(within(formDialog).getByLabelText('Terapi yang diberikan')).toHaveValue(
       'Prinsip terapi: Mengeringkan lembap, mengubah dahak',
     );

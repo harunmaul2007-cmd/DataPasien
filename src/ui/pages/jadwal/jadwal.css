@@ -20,6 +20,13 @@
   margin: var(--space-4) 0;
 }
 
+.jadwal-status-filter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0 0 var(--space-4);
+}
+
 .jadwal-filter-bar {
   display: flex;
   flex-wrap: wrap;

@@ -1,6 +1,6 @@
 // Halaman jadwal kunjungan (Req 8.1–8.10, 8.12–8.14).
-// - Pemilih tanggal (default hari ini) dan daftar seluruh jadwal pada tanggal
-//   tersebut (semua status) urut jam menaik via selectJadwalPadaTanggal.
+// - Filter tanggal (Semua Jadwal / Hari Ini / pilih tanggal) dan filter status
+//   (Baru = Terjadwal, Selesai, Dibatalkan; default Baru), urut tanggal lalu jam.
 // - Setiap jadwal menampilkan nama pasien, nomor HP, tanggal, jam (JJ:MM),
 //   catatan, dan status. Aksi mengikuti aksiTersedia (Req 8.14).
 // - Tandai Selesai → dialog "Catat sesi terapi sekarang?"; jika ya, SesiFormDialog
@@ -10,7 +10,7 @@ import { useId, useState, type ReactNode } from 'react';
 import { formatJam, formatTanggal } from '../../domain/format';
 import { aksiTersedia } from '../../domain/jadwal';
 import { todayISO } from '../../domain/tanggal';
-import type { JadwalKunjungan, Pasien } from '../../domain/types';
+import type { JadwalKunjungan, Pasien, StatusJadwal } from '../../domain/types';
 import { NotFoundError } from '../../infra/errors';
 import { PESAN_GAGAL_SIMPAN, useDataStore, useDataStoreState } from '../../state/dataStore';
 import { Dialog } from '../components/Dialog';
@@ -30,6 +30,20 @@ type FormState = { mode: 'tambah' } | { mode: 'ubah'; jadwal: JadwalKunjungan } 
 type SesiTarget = { pasienId: string; tanggal: string };
 type FilterMode = 'semua' | 'tanggal';
 
+/** Pilihan filter status; "Baru" = jadwal berstatus Terjadwal. */
+export const FILTER_STATUS: ReadonlyArray<{ status: StatusJadwal; label: string }> = [
+  { status: 'Terjadwal', label: 'Baru' },
+  { status: 'Selesai', label: 'Selesai' },
+  { status: 'Dibatalkan', label: 'Dibatalkan' },
+];
+
+/** Pesan daftar kosong sesuai filter tanggal dan status. */
+export function pesanKosong(mode: FilterMode, status: StatusJadwal): string {
+  if (status === 'Terjadwal' && mode === 'tanggal') return PESAN_TIDAK_ADA_JADWAL;
+  const label = FILTER_STATUS.find((f) => f.status === status)!.label.toLowerCase();
+  return `Tidak ada jadwal ${label}${mode === 'tanggal' ? ' pada tanggal ini' : ''}`;
+}
+
 export function JadwalPage(): ReactNode {
   const store = useDataStore();
   const toast = useToast();
@@ -40,6 +54,8 @@ export function JadwalPage(): ReactNode {
 
   // Default awal adalah 'semua' agar seluruh data jadwal yang sudah ada langsung tampil.
   const [filterMode, setFilterMode] = useState<FilterMode>('semua');
+  // Default status: jadwal baru (Terjadwal).
+  const [filterStatus, setFilterStatus] = useState<StatusJadwal>('Terjadwal');
   const [tanggal, setTanggal] = useState(() => todayISO(new Date()));
   const [form, setForm] = useState<FormState>(null);
   const [hapus, setHapus] = useState<JadwalKunjungan | null>(null);
@@ -48,7 +64,11 @@ export function JadwalPage(): ReactNode {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const semuaJadwalList = store.selectSemuaJadwal();
-  const list = filterMode === 'semua' ? semuaJadwalList : store.selectJadwalPadaTanggal(tanggal);
+  // Filter tanggal lebih dulu, lalu status; jumlah per status mengikuti filter tanggal.
+  const perTanggal = filterMode === 'semua' ? semuaJadwalList : store.selectJadwalPadaTanggal(tanggal);
+  const list = perTanggal.filter((j) => j.status === filterStatus);
+  const jumlahSemua = semuaJadwalList.filter((j) => j.status === filterStatus).length;
+  const jumlahStatus = (s: StatusJadwal) => perTanggal.filter((j) => j.status === s).length;
   const namaPasien = (id: string) => store.selectPasien(id)?.nama ?? '-';
 
   async function ubahStatus(j: JadwalKunjungan, target: 'Selesai' | 'Dibatalkan') {
@@ -87,7 +107,7 @@ export function JadwalPage(): ReactNode {
             onClick={() => setFilterMode('semua')}
             data-testid="filter-semua-jadwal"
           >
-            Semua Jadwal ({semuaJadwalList.length})
+            Semua Jadwal ({jumlahSemua})
           </button>
           <button
             type="button"
@@ -120,9 +140,27 @@ export function JadwalPage(): ReactNode {
         </div>
       </div>
 
+      <div className="jadwal-status-filter" role="group" aria-label="Filter status">
+        <span className="field__label">Status</span>
+        <div className="jadwal-filter-bar">
+          {FILTER_STATUS.map((f) => (
+            <button
+              key={f.status}
+              type="button"
+              className={`btn${filterStatus === f.status ? ' btn--primary' : ''}`}
+              aria-pressed={filterStatus === f.status}
+              onClick={() => setFilterStatus(f.status)}
+              data-testid={`filter-status-${f.status.toLowerCase()}`}
+            >
+              {f.label} ({jumlahStatus(f.status)})
+            </button>
+          ))}
+        </div>
+      </div>
+
       {list.length === 0 ? (
         <p className="jadwal-page__empty" role="status">
-          {PESAN_TIDAK_ADA_JADWAL}
+          {pesanKosong(filterMode, filterStatus)}
         </p>
       ) : (
         <ul className="jadwal-page__items" aria-label="Daftar jadwal">
@@ -148,9 +186,10 @@ export function JadwalPage(): ReactNode {
         onClose={() => setForm(null)}
         onSaved={(j) => {
           setForm(null);
-          // Tampilkan tanggal jadwal yang baru disimpan (Req 8.1, 8.7).
+          // Tampilkan tanggal & status jadwal yang baru disimpan (Req 8.1, 8.7).
           setTanggal(j.tanggal);
           setFilterMode('tanggal');
+          setFilterStatus(j.status);
         }}
       />
 
