@@ -6,6 +6,7 @@ import { todayISO } from '../../../domain/tanggal';
 import type { FieldErrors, FotoSource, SesiField, SesiInput, SesiTerapi } from '../../../domain/types';
 import { NotFoundError } from '../../../infra/errors';
 import { PESAN_GAGAL_SIMPAN, useDataStore } from '../../../state/dataStore';
+import { useLisensi } from '../../../state/lisensi';
 import { Dialog } from '../../components/Dialog';
 import { TextAreaField, TextField } from '../../components/Field';
 import { FotoStrip } from '../../components/FotoStrip';
@@ -78,6 +79,7 @@ function SesiFormDialogContent({
   const [linkGw] = useState(() => linkGateway ?? createExternalLinkGateway());
   const [clipGw] = useState(() => clipboardGateway ?? createClipboardGateway());
   const [aiOpen, setAiOpen] = useState(false);
+  const lisensi = useLisensi();
   const isEdit = !!sesi;
   const formId = isEdit ? `sesi-form-${sesi.id}` : `sesi-form-baru-${pasienId}`;
 
@@ -170,15 +172,17 @@ function SesiFormDialogContent({
 
   const tombolSimpanDisabled = saving || draft.memproses;
 
-  // Bantuan AI: butuh keluhan sebagai dasar pertanyaan ke ChatGPT.
+  // Bantuan AI (Full Version): butuh keluhan sebagai dasar pertanyaan ke ChatGPT.
   function bukaBantuanAi() {
-    if (values.keluhan.trim() === '') {
-      setErrors((e) => ({ ...e, keluhan: 'Isi keluhan terlebih dahulu untuk Bantuan AI' }));
-      return;
-    }
-    setAiOpen(true);
-    void bukaChatGpt(values.keluhan, linkGw, clipGw).then((ok) => {
-      if (!ok) toast.error('ChatGPT tidak dapat dibuka');
+    lisensi.minta('Bantuan AI', () => {
+      if (values.keluhan.trim() === '') {
+        setErrors((e) => ({ ...e, keluhan: 'Isi keluhan terlebih dahulu untuk Bantuan AI' }));
+        return;
+      }
+      setAiOpen(true);
+      void bukaChatGpt(values.keluhan, linkGw, clipGw).then((ok) => {
+        if (!ok) toast.error('ChatGPT tidak dapat dibuka');
+      });
     });
   }
 
@@ -240,6 +244,7 @@ function SesiFormDialogContent({
           <div className="bantuan-ai__pemicu">
             <button type="button" className="btn" onClick={bukaBantuanAi} disabled={tombolSimpanDisabled}>
               Bantuan AI
+              {lisensi.status !== 'aktif' && <span aria-hidden="true"> 🔒</span>}
             </button>
           </div>
           <TextAreaField

@@ -5,7 +5,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 // memuat konten dari jaringan (Req 13.10).
 const config: CapacitorConfig = {
   appId: 'com.datapasien.terapi',
-  appName: 'Data Pasien',
+  appName: 'E-Data Pasien',
   webDir: 'dist',
   android: {
     // Kompatibel dengan Android 7.0 (API 24) ke atas; minSdk diatur di variables.gradle.

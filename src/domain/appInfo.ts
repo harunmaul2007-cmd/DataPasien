@@ -13,7 +13,7 @@ export interface AppInfo {
 }
 
 export const APP_INFO: AppInfo = {
-  namaAplikasi: 'Data Pasien',
+  namaAplikasi: 'E-Data Pasien',
   deskripsiAplikasi: 'Aplikasi Manajemen Pasien Terapi (PWA & APK Android)',
   versionName: versionData.versionName,
   versionCode: versionData.versionCode,

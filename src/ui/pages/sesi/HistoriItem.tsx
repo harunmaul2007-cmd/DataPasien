@@ -5,6 +5,7 @@ import { useState, type ReactNode } from 'react';
 import { atauStrip, formatRupiah, formatTanggal } from '../../../domain/format';
 import type { FotoSource, SesiTerapi } from '../../../domain/types';
 import { useDataStore } from '../../../state/dataStore';
+import { useLisensi } from '../../../state/lisensi';
 import { FotoStrip } from '../../components/FotoStrip';
 import { PhotoViewer } from '../../components/PhotoViewer';
 import { LaporanSesiFlow } from './LaporanSesiFlow';
@@ -24,6 +25,7 @@ export function HistoriItem({ sesi, onEdit, onDelete }: HistoriItemProps): React
 
   const [viewerIndex, setViewerIndex] = useState<number | null>(null);
   const [bukaLaporan, setBukaLaporan] = useState(false);
+  const lisensi = useLisensi();
 
   const fotoSources: FotoSource[] = fotoList.map((meta) => ({
     key: meta.id,
@@ -65,11 +67,12 @@ export function HistoriItem({ sesi, onEdit, onDelete }: HistoriItemProps): React
             <button
               type="button"
               className="btn btn--secondary"
-              onClick={() => setBukaLaporan(true)}
+              onClick={() => lisensi.minta('Laporan PDF', () => setBukaLaporan(true))}
               aria-label={`Buat laporan PDF sesi ${tanggal}`}
               data-testid="btn-laporan-pdf"
             >
               📄 Buat laporan PDF
+              {lisensi.status !== 'aktif' && <span aria-hidden="true"> 🔒</span>}
             </button>
           )}
 

@@ -8,6 +8,7 @@ import type { ClipboardGateway } from '../../../infra/clipboardGateway';
 import type { ExternalLinkGateway } from '../../../infra/externalLink';
 import { DexieRepository, openRepository } from '../../../infra/repository';
 import { DataStore, DataStoreProvider } from '../../../state/dataStore';
+import { LisensiTetapProvider } from '../../../state/lisensi';
 import { DialogStackProvider } from '../../components/DialogStack';
 import { ToastProvider } from '../../components/Toast';
 import { SesiFormDialog } from '../sesi/SesiFormDialog';
@@ -45,7 +46,9 @@ async function setup() {
     <DataStoreProvider store={store}>
       <DialogStackProvider>
         <ToastProvider duration={0}>
-          <SesiFormDialog open pasienId={r.value.id} onClose={() => {}} linkGateway={link} clipboardGateway={clipboard} />
+          <LisensiTetapProvider aktif>
+            <SesiFormDialog open pasienId={r.value.id} onClose={() => {}} linkGateway={link} clipboardGateway={clipboard} />
+          </LisensiTetapProvider>
         </ToastProvider>
       </DialogStackProvider>
     </DataStoreProvider>,

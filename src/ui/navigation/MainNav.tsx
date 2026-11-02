@@ -3,9 +3,10 @@
 // - ≥ 768 px: sidebar kiri yang selalu terlihat
 // Setiap menu tercapai dalam satu ketukan dari halaman mana pun.
 
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { APP_INFO } from '../../domain/appInfo';
+import { useLisensi } from '../../state/lisensi';
 import { MAIN_NAV, ROUTES, SETTINGS_NAV, type NavItem } from './routes';
 
 /** Menu aktif: Pasien juga aktif pada halaman detail pasien. */
@@ -14,11 +15,22 @@ export function isNavActive(item: NavItem, pathname: string): boolean {
   return pathname === item.to || pathname.startsWith(`${item.to}/`);
 }
 
-function NavItemLink({ item, iconOnly, pathname }: { item: NavItem; iconOnly?: boolean; pathname: string }): ReactNode {
+function NavItemLink({
+  item,
+  iconOnly,
+  pathname,
+  onClick,
+}: {
+  item: NavItem;
+  iconOnly?: boolean;
+  pathname: string;
+  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
+}): ReactNode {
   const active = isNavActive(item, pathname);
   return (
     <Link
       to={item.to}
+      onClick={onClick}
       className={`nav__link${active ? ' nav__link--active' : ''}${iconOnly ? ' nav__link--settings' : ''}`}
       aria-current={active ? 'page' : undefined}
       aria-label={iconOnly ? item.label : undefined}
@@ -33,13 +45,22 @@ function NavItemLink({ item, iconOnly, pathname }: { item: NavItem; iconOnly?: b
 
 export function MainNav(): ReactNode {
   const { pathname } = useLocation();
+  const lisensi = useLisensi();
+  // Pengaturan = fitur Full Version: pada versi gratis tampilkan dialog aktivasi.
+  const klikTerkunci = (item: NavItem) =>
+    item.to === ROUTES.pengaturan && lisensi.status === 'gratis'
+      ? (e: MouseEvent<HTMLAnchorElement>) => {
+          e.preventDefault();
+          lisensi.minta(item.label);
+        }
+      : undefined;
   return (
     <nav className="nav" aria-label="Navigasi utama">
-      <span className="nav__brand">Data Pasien</span>
+      <span className="nav__brand">{APP_INFO.namaAplikasi}</span>
       <ul className="nav__list">
         {MAIN_NAV.map((item) => (
           <li key={item.to} className="nav__item">
-            <NavItemLink item={item} pathname={pathname} />
+            <NavItemLink item={item} pathname={pathname} onClick={klikTerkunci(item)} />
           </li>
         ))}
         <li className="nav__item nav__item--settings">

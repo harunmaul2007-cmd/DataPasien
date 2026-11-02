@@ -1071,3 +1071,29 @@ textarea.field__input {
 .bantuan-ai__pratinjau dd {
   margin: 0 0 var(--space-2);
 }
+
+/* ---- Aktivasi Full Version ---- */
+.aktivasi-panel p {
+  margin: 0 0 var(--space-2);
+}
+
+.aktivasi-panel__wa {
+  margin: var(--space-3) 0;
+}
+
+.aktivasi-panel__form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.aktivasi-panel__form .field {
+  width: 100%;
+}
+
+.aktivasi-panel__kode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  word-break: break-all;
+}

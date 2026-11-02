@@ -12,3 +12,7 @@ keystore.properties
 *.jks
 *.keystore
 !android/app/debug.keystore
+
+# Kunci privat penerbit kode aktivasi Full Version (scripts/lisensi.mjs)
+*.pem
+lisensi-private*

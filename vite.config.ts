@@ -26,8 +26,8 @@ export default defineConfig(({ mode }) => ({
       selfDestroying: mode === 'android',
       includeAssets: ['apple-touch-icon.png'],
       manifest: {
-        name: 'Data Pasien',
-        short_name: 'Data Pasien',
+        name: 'E-Data Pasien',
+        short_name: 'E-Data Pasien',
         description: 'Aplikasi Manajemen Pasien Terapi',
         lang: 'id',
         display: 'standalone',
@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => ({
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           {
-            src: 'icons/icon-512.png',
+            src: 'icons/icon-maskable-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable',
@@ -63,6 +63,9 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    // Property test (100–300 iterasi) dan uji UI dengan IndexedDB bisa melewati
+    // batas bawaan 5 detik saat mesin sibuk; 20 detik mencegah timeout palsu.
+    testTimeout: 20_000,
     include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.{ts,mjs}'],
     exclude: ['node_modules', 'dist', 'e2e'],
     coverage: {

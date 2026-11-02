@@ -121,8 +121,8 @@ export class DefaultPdfRenderer implements PdfRenderer {
     }
 
     doc.setTitle(judulBagikan);
-    doc.setCreator('Data Pasien');
-    doc.setProducer('Data Pasien');
+    doc.setCreator('E-Data Pasien');
+    doc.setProducer('E-Data Pasien');
 
     for (const hal of halaman) {
       const page = doc.addPage([HALAMAN.lebar, HALAMAN.tinggi]);

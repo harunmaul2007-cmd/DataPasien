@@ -1,6 +1,6 @@
 # Build APK Android
 
-Dokumen ini menjelaskan cara menghasilkan APK_Debug dan APK_Rilis Aplikasi Data Pasien dari kode sumber web yang sama dengan versi PWA. Package_Identifier tetap: `com.datapasien.terapi`; target minimal Android 7.0 (API 24).
+Dokumen ini menjelaskan cara menghasilkan APK_Debug dan APK_Rilis Aplikasi E-Data Pasien dari kode sumber web yang sama dengan versi PWA. Package_Identifier tetap: `com.datapasien.terapi`; target minimal Android 7.0 (API 24).
 
 ## 1. Prasyarat
 
@@ -82,11 +82,11 @@ Bila salah satu nilai tidak ada atau file keystore tidak ditemukan, build rilis 
 ## 4. Lokasi keluaran
 
 ```
-release/data-pasien-<versionName>-debug.apk
-release/data-pasien-<versionName>-release.apk
+release/e-data-pasien-<versionName>-debug.apk
+release/e-data-pasien-<versionName>-release.apk
 ```
 
-Contoh: `release/data-pasien-1.0.0-release.apk`. File APK di `release/` tidak dikomit.
+Contoh: `release/e-data-pasien-1.0.0-release.apk`. File APK di `release/` tidak dikomit.
 
 Setelah build rilis berhasil, `release/last-release.json` diperbarui dengan `versionName` dan `versionCode` rilis tersebut. File ini dipakai untuk memvalidasi rilis berikutnya, jadi komit file ini setiap kali merilis.
 
@@ -114,3 +114,26 @@ npm run android:icons
 ```
 
 Lalu jalankan build seperti biasa.
+
+## 7. Kode aktivasi Full Version
+
+Fitur Bantuan AI, Laporan PDF, dan Pengaturan hanya terbuka setelah pengguna memasukkan kode aktivasi. Kode ditandatangani secara digital (ECDSA P-256) dan diperiksa offline oleh aplikasi dengan kunci publik di `src/domain/lisensiKunci.ts`.
+
+Kunci privat ada di `~/.datapasien/lisensi-private.pem` (atau path di env `DATAPASIEN_LISENSI_KEY`). Simpan cadangannya di tempat aman dan jangan dikomit. Bila hilang, kode baru tidak bisa diterbitkan untuk aplikasi yang sudah terpasang.
+
+Menerbitkan kode setelah pembayaran diterima:
+
+```sh
+npm run lisensi -- buat email@pelanggan.com
+```
+
+Perintah ini mencetak kode `DP1.…` beserta pesan siap kirim ke WhatsApp pelanggan. `npm run lisensi -- keygen` hanya dijalankan sekali; mengganti pasangan kunci membuat semua kode lama tidak berlaku setelah aplikasi diperbarui.
+
+## 8. Logo, ikon, dan splash screen
+
+Semua ikon (launcher Android, PWA) dan splash screen dibuat dari satu file `assets/logo-splash.png` (logo lengkap, latar transparan). Ikon memakai bagian gambar saja tanpa tulisan. Setelah mengganti logo:
+
+```sh
+npm run brand:assets
+npm run android:icons
+```

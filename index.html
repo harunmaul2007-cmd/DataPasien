@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0f766e" />
     <link rel="icon" type="image/png" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-    <title>Data Pasien</title>
+    <title>E-Data Pasien</title>
     <script>
       (function() {
         try {
@@ -15,8 +15,37 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      /* Splash screen: tampil sebelum JavaScript dimuat, dilepas oleh src/ui/splash.ts. */
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        transition: opacity 300ms ease-out;
+      }
+      #splash img {
+        width: min(70vw, 320px);
+        height: auto;
+      }
+      #splash.splash--keluar {
+        opacity: 0;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div id="splash" role="status" aria-label="Memuat aplikasi">
+      <img src="./splash-logo.png" alt="E-Data Pasien" width="640" height="402" />
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

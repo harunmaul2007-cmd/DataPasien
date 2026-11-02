@@ -8,6 +8,7 @@ import { useState, type ReactNode } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { createPlatformAdapter, type PlatformAdapter } from '../infra/platform';
 import { DataStoreProvider, useDataStore, useDataStoreState, type DataStore } from '../state/dataStore';
+import { LisensiProvider, type LisensiProviderProps } from '../state/lisensi';
 import { DialogStackProvider, type DialogStackApi } from './components/DialogStack';
 import { LoadErrorScreen, LoadingScreen } from './components/LoadErrorScreen';
 import { ToastProvider } from './components/Toast';
@@ -15,6 +16,7 @@ import { BackButtonHandler } from './navigation/backButton';
 import { MainNav } from './navigation/MainNav';
 import { ROUTES } from './navigation/routes';
 import { CadanganPage } from './pages/CadanganPage';
+import { FullVersionGuard } from './pages/FullVersionGuard';
 import { JadwalPage } from './pages/JadwalPage';
 import { LaporanPage } from './pages/LaporanPage';
 import { PasienDetailPage } from './pages/PasienDetailPage';
@@ -28,7 +30,14 @@ export function AppRoutes(): ReactNode {
       <Route path={ROUTES.pasienDetail} element={<PasienDetailPage />} />
       <Route path={ROUTES.jadwal} element={<JadwalPage />} />
       <Route path={ROUTES.laporan} element={<LaporanPage />} />
-      <Route path={ROUTES.pengaturan} element={<PengaturanPage />} />
+      <Route
+        path={ROUTES.pengaturan}
+        element={
+          <FullVersionGuard fitur="Pengaturan">
+            <PengaturanPage />
+          </FullVersionGuard>
+        }
+      />
       <Route path={ROUTES.cadangan} element={<CadanganPage />} />
       <Route path="*" element={<Navigate to={ROUTES.pasienList} replace />} />
     </Routes>
@@ -62,13 +71,15 @@ export interface AppProps {
   dialogStack?: DialogStackApi;
   /** Adapter platform untuk Tombol_Kembali/exitApp; default sesuai platform saat ini. */
   platform?: PlatformAdapter;
+  /** Penyimpanan kode aktivasi; default localStorage. */
+  lisensiStorage?: LisensiProviderProps['storage'];
 }
 
 /**
  * Aplikasi lengkap. Pemanggil bertanggung jawab memanggil `store.load()`
  * (lihat main.tsx), sehingga uji dapat mengatur keadaan store sendiri.
  */
-export function App({ store, dialogStack, platform }: AppProps): ReactNode {
+export function App({ store, dialogStack, platform, lisensiStorage }: AppProps): ReactNode {
   // Adapter default dibuat sekali; bila prop `platform` diberikan, adapter itu dipakai.
   const [defaultPlatform] = useState<PlatformAdapter>(() => platform ?? createPlatformAdapter());
   const activePlatform = platform ?? defaultPlatform;
@@ -76,10 +87,12 @@ export function App({ store, dialogStack, platform }: AppProps): ReactNode {
     <DataStoreProvider store={store}>
       <DialogStackProvider stack={dialogStack}>
         <ToastProvider>
-          <HashRouter>
-            <AppShell />
-            <BackButtonHandler platform={activePlatform} />
-          </HashRouter>
+          <LisensiProvider storage={lisensiStorage}>
+            <HashRouter>
+              <AppShell />
+              <BackButtonHandler platform={activePlatform} />
+            </HashRouter>
+          </LisensiProvider>
         </ToastProvider>
       </DialogStackProvider>
     </DataStoreProvider>

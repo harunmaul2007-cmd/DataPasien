@@ -4,6 +4,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import type { DraftLogo, FieldErrors, PengaturanField, PengaturanInput } from '../../domain/types';
 import { useDataStore } from '../../state/dataStore';
+import { useLisensi } from '../../state/lisensi';
 import { AppCreatorInfo } from '../components/AppCreatorInfo';
 import { TextAreaField, TextField } from '../components/Field';
 import { ThemePicker } from '../components/ThemePicker';
@@ -14,6 +15,7 @@ export function PengaturanPage(): ReactNode {
   const store = useDataStore();
   const toast = useToast();
   const savedPengaturan = store.selectPengaturan();
+  const lisensi = useLisensi();
 
   const [values, setValues] = useState<PengaturanInput>(() => ({
     namaPraktik: savedPengaturan?.namaPraktik ?? 'Data Pasien',
@@ -151,6 +153,11 @@ export function PengaturanPage(): ReactNode {
       <div className="pengaturan-section" style={{ marginTop: 'var(--space-6)' }}>
         <h2 id="creator-judul">Tentang Aplikasi</h2>
         <AppCreatorInfo />
+        {lisensi.info ? (
+          <p className="field__hint" data-testid="info-lisensi">
+            Full Version aktif, terdaftar atas {lisensi.info.email}
+          </p>
+        ) : null}
       </div>
     </section>
   );

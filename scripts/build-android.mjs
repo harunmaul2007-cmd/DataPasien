@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Proses_Build APK Android (Req 13.1, 13.2, 13.4, 13.5, 13.13).
 //
-//   node scripts/build-android.mjs debug     -> release/data-pasien-<versionName>-debug.apk
-//   node scripts/build-android.mjs release   -> release/data-pasien-<versionName>-release.apk
+//   node scripts/build-android.mjs debug     -> release/e-data-pasien-<versionName>-debug.apk
+//   node scripts/build-android.mjs release   -> release/e-data-pasien-<versionName>-release.apk
 //
 // Langkah dijalankan berurutan. Bila satu langkah gagal: cetak
 // `Langkah gagal: <nama langkah>`, keluar dengan kode non-nol, dan hapus APK
@@ -174,7 +174,7 @@ export function gradleApkPath(rootDir, mode) {
 
 /** Nama file APK di release/. */
 export function releaseApkFileName(versionName, mode) {
-  return `data-pasien-${versionName}-${mode}.apk`;
+  return `e-data-pasien-${versionName}-${mode}.apk`;
 }
 
 /** Nama perintah Gradle wrapper sesuai platform. */

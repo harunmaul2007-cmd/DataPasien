@@ -75,6 +75,8 @@ test.describe('Navigasi utama: menu bawah (< 768 px) vs sidebar (≥ 768 px)', (
   for (const width of [360, 414, 767, 768, 1024, 1440, 1920]) {
     const mode = width < 768 ? 'menu bawah' : 'sidebar';
     test(`lebar ${width}px menampilkan ${mode}`, async ({ page }) => {
+      // 25 navigasi dalam satu test: beri waktu lebih saat mesin sibuk (sebelumnya flaky di 30 detik).
+      test.setTimeout(90_000);
       await page.setViewportSize({ width, height: HEIGHT });
       await openApp(page);
       const nav = page.getByRole('navigation', { name: 'Navigasi utama' });

@@ -5,6 +5,7 @@ import { openRepository } from './infra/repository';
 import { bersihkanServiceWorker } from './infra/serviceWorkerCleanup';
 import { createDataStore } from './state/dataStore';
 import { App } from './ui/App';
+import { sembunyikanSplash } from './ui/splash';
 import './ui/styles.css';
 
 // Repository dibuka di dalam load() sehingga kegagalan membuka basis data
@@ -21,7 +22,9 @@ if (Capacitor.isNativePlatform()) {
 }
 
 const store = createDataStore({ repository: () => openRepository() });
-void store.load();
+// Splash dihitung sejak halaman mulai dimuat (performance.now() ≈ 0).
+// Di bawah otomasi (Playwright) splash tidak ditahan agar uji e2e tidak melambat.
+void sembunyikanSplash({ siap: store.load(), mulai: 0, minimumMs: navigator.webdriver ? 0 : undefined });
 
 const root = document.getElementById('root');
 if (root) {
