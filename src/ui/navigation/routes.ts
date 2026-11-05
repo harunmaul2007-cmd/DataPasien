@@ -5,6 +5,7 @@ export const ROUTES = {
   pasienDetail: '/pasien/:id',
   jadwal: '/jadwal',
   laporan: '/laporan',
+  grafik: '/grafik',
   pengaturan: '/pengaturan',
   cadangan: '/cadangan',
 } as const;
@@ -19,11 +20,12 @@ export interface NavItem {
   icon: string;
 }
 
-/** Empat menu utama (Req 7.8). */
+/** Menu utama (Req 7.8) ditambah menu Grafik. */
 export const MAIN_NAV: readonly NavItem[] = [
   { to: ROUTES.pasienList, label: 'Pasien', icon: '👤' },
   { to: ROUTES.jadwal, label: 'Jadwal', icon: '📅' },
   { to: ROUTES.laporan, label: 'Laporan', icon: '📊' },
+  { to: ROUTES.grafik, label: 'Grafik', icon: '📈' },
   { to: ROUTES.pengaturan, label: 'Pengaturan', icon: '🏢' },
 ];
 

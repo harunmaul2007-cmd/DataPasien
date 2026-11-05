@@ -20,18 +20,14 @@ const nowDenganDetikArb: fc.Arbitrary<Date> = fc
   .tuple(nowArb, fc.integer({ min: 0, max: 59_999 }))
   .map(([d, ms]) => new Date(d.getTime() + ms));
 
-/** Model referensi: epoch ms lokal dari tanggal+jam yang sudah valid. */
-function waktuLokalModel(tanggal: string, jam: string): number {
-  const [y, m, d] = tanggal.split('-').map(Number) as [number, number, number];
-  const [h, mi] = jam.split(':').map(Number) as [number, number];
-  return new Date(y, m - 1, d, h, mi, 0, 0).getTime();
+/** Model referensi: nomor hari kalender (y*10000+m*100+d) dari teks tanggal valid atau Date lokal. */
+function tanggalModel(t: string | Date): number {
+  if (t instanceof Date) return t.getFullYear() * 10000 + (t.getMonth() + 1) * 100 + t.getDate();
+  const [y, m, d] = t.split('-').map(Number) as [number, number, number];
+  return y * 10000 + m * 100 + d;
 }
 
-function menitNow(now: Date): number {
-  const d = new Date(now.getTime());
-  d.setSeconds(0, 0);
-  return d.getTime();
-}
+
 
 /** Model referensi kesalahan per field sesuai tabel aturan di design. */
 function kesalahanModel(
@@ -46,7 +42,7 @@ function kesalahanModel(
   const jOk = isJamValidModel(input.jam);
   if (!tOk) e.tanggal = PESAN.tanggalWajib;
   if (!jOk) e.jam = PESAN.jamWajib;
-  if (tOk && jOk && !abaikanWaktuLewat && waktuLokalModel(input.tanggal, input.jam) < menitNow(now)) {
+  if (tOk && jOk && !abaikanWaktuLewat && tanggalModel(input.tanggal) < tanggalModel(now)) {
     e.tanggal = PESAN.jadwalLewat;
   }
   if (codePointLength(input.catatan.trim()) > BATAS.catatan) e.catatan = PESAN.catatanMaks;
@@ -102,19 +98,19 @@ describe('Property 3: Validator jadwal sesuai model aturan', () => {
     );
   });
 
-  it('waktu pada menit yang sama dengan now diterima; satu menit sebelumnya ditolak', () => {
+  it('hari ini diterima pada jam berapa pun; kemarin ditolak', () => {
     fc.assert(
-      fc.property(idArb, nowDenganDetikArb, fc.constantFrom(0, -1), (id, now, offset) => {
-        const t = new Date(menitNow(now) + offset * 60_000);
+      fc.property(idArb, nowDenganDetikArb, fc.constantFrom(0, -1), fc.integer({ min: 0, max: 1439 }), (id, now, hari, menit) => {
+        const t = new Date(now.getFullYear(), now.getMonth(), now.getDate() + hari);
         const pad = (n: number, w = 2): string => String(n).padStart(w, '0');
         const input: JadwalInput = {
           pasienId: id,
           tanggal: `${pad(t.getFullYear(), 4)}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`,
-          jam: `${pad(t.getHours())}:${pad(t.getMinutes())}`,
+          jam: `${pad(Math.floor(menit / 60))}:${pad(menit % 60)}`,
           catatan: '',
         };
         const hasil = validateJadwal(input, now, new Set([id]));
-        if (offset === 0) expect(hasil.ok).toBe(true);
+        if (hari === 0) expect(hasil.ok).toBe(true);
         else expect(hasil).toEqual({ ok: false, errors: { tanggal: PESAN.jadwalLewat } });
         // Dengan opsi impor, jadwal lewat tetap diterima.
         expect(validateJadwal(input, now, new Set([id]), { abaikanWaktuLewat: true }).ok).toBe(true);

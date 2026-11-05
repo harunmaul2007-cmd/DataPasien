@@ -13,7 +13,7 @@ import { Dialog } from '../../components/Dialog';
 import { useToast } from '../../components/Toast';
 
 export const PESAN_JAWABAN_TIDAK_DIKENALI =
-  'Format jawaban AI belum dikenali. Pastikan memuat baris "SYSTEM TUBUH YANG TERDAMPAK:", "POLA GANGGUAN:", "POLA TCM:", "MEKANISME:", dan "PRINSIP TERAPI:".';
+  'Format jawaban AI belum dikenali. Pastikan memuat baris "SYSTEM FISIOLOGI TUBUH YANG TERDAMPAK:", "POLA GANGGUAN:", "POLA TCM:", "MEKANISME (SECARA TCM):", "MEKANISME (SECARA MEDIS BARAT):", dan "PRINSIP TERAPI:".';
 
 export interface BantuanAiDialogProps {
   keluhan: string;
@@ -140,11 +140,11 @@ export function BantuanAiDialog({
         <textarea
           id={jawabanId}
           className="field__input"
-          rows={7}
+          rows={8}
           value={jawaban}
           onChange={(e) => setJawaban(e.target.value)}
           placeholder={
-            'SYSTEM TUBUH YANG TERDAMPAK: …\nPOLA GANGGUAN: …\nPOLA TCM: …\nMEKANISME: …\nPRINSIP TERAPI: …'
+            'SYSTEM FISIOLOGI TUBUH YANG TERDAMPAK: …\nPOLA GANGGUAN: …\nPOLA TCM: …\nMEKANISME (SECARA TCM): …\nMEKANISME (SECARA MEDIS BARAT): …\nPRINSIP TERAPI: …'
           }
           aria-invalid={jawaban.trim() !== '' && !hasil ? true : undefined}
         />

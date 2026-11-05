@@ -23,10 +23,11 @@ afterEach(async () => {
 });
 
 const JAWABAN = [
-  'SYSTEM TUBUH YANG TERDAMPAK: Ginjal dan pinggang',
+  'SYSTEM FISIOLOGI TUBUH YANG TERDAMPAK (SISTEM SARAF, PENCERNAAN, RESPIRASI, METABOLIK, MUSKULOSKELETAL): Muskuloskeletal',
   'POLA GANGGUAN (DEFISIENSI, STAGNASI, PANAS, DINGIN, LEMBAB): Defisiensi, Dingin',
   'POLA TCM: Defisiensi Yang Ginjal',
-  'MEKANISME: Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+  'MEKANISME (SECARA TCM): Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+  'MEKANISME (SECARA MEDIS BARAT): Ketegangan otot punggung bawah.',
   'PRINSIP TERAPI: Menghangatkan dan menguatkan Yang Ginjal',
 ].join('\n');
 
@@ -113,10 +114,11 @@ describe('Bantuan AI pada formulir sesi', () => {
     expect(screen.queryByRole('dialog', { name: 'Bantuan AI (TCM)' })).not.toBeInTheDocument();
     expect(within(formDialog).getByLabelText('Diagnosa')).toHaveValue(
       [
-        'System tubuh yang terdampak: Ginjal dan pinggang',
+        'System fisiologi tubuh yang terdampak: Muskuloskeletal',
         'Pola gangguan: Defisiensi, Dingin',
         'Pola TCM: Defisiensi Yang Ginjal',
-        'Mekanisme: Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+        'Mekanisme (TCM): Yang Ginjal lemah sehingga pinggang tidak terhangatkan.',
+        'Mekanisme (medis Barat): Ketegangan otot punggung bawah.',
       ].join('\n'),
     );
     expect(within(formDialog).getByLabelText('Terapi yang diberikan')).toHaveValue(

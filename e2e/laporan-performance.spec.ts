@@ -2,7 +2,7 @@
 // Validates: Requirements 9.1, 9.2
 
 import { expect, test } from '@playwright/test';
-import { openApp, rupiah, seedDb, waitForPasienList, type SeedData, type SeedSesi } from './helpers';
+import { jumlahTerdaftar, openApp, rupiah, seedDb, waitForPasienList, type SeedData, type SeedSesi } from './helpers';
 
 const JUMLAH_SESI = 5000;
 const JUMLAH_PASIEN = 200;
@@ -74,7 +74,7 @@ test('laporan bulan berjalan dan pergantian filter tampil < 2 detik dengan 5.000
   await seedDb(page, data);
   await page.reload();
   await waitForPasienList(page);
-  await expect(page.getByTestId('pasien-item')).toHaveCount(JUMLAH_PASIEN);
+  await expect(jumlahTerdaftar(page, JUMLAH_PASIEN)).toBeVisible();
 
   // Req 9.1: membuka halaman laporan → laporan bulan & tahun berjalan tampil.
   const t0 = Date.now();

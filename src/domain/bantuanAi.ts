@@ -6,22 +6,32 @@
 
 export const CHATGPT_BASE_URL = 'https://chatgpt.com/';
 
-/** Penanda baris yang diminta pada format jawaban AI (5 baris). */
-export const LABEL_SISTEM = 'SYSTEM TUBUH YANG TERDAMPAK';
+/** Penanda baris yang diminta pada format jawaban AI (6 baris). */
+export const LABEL_SISTEM =
+  'SYSTEM FISIOLOGI TUBUH YANG TERDAMPAK (SISTEM SARAF, PENCERNAAN, RESPIRASI, METABOLIK, MUSKULOSKELETAL)';
 export const LABEL_POLA_GANGGUAN = 'POLA GANGGUAN (DEFISIENSI, STAGNASI, PANAS, DINGIN, LEMBAB)';
 export const LABEL_POLA_TCM = 'POLA TCM';
-export const LABEL_MEKANISME = 'MEKANISME';
+export const LABEL_MEKANISME_TCM = 'MEKANISME (SECARA TCM)';
+export const LABEL_MEKANISME_BARAT = 'MEKANISME (SECARA MEDIS BARAT)';
 export const LABEL_PRINSIP = 'PRINSIP TERAPI';
 
 export interface JawabanAi {
   sistemTubuh: string;
   polaGangguan: string;
   polaTcm: string;
-  mekanisme: string;
+  mekanismeTcm: string;
+  mekanismeBarat: string;
   prinsipTerapi: string;
 }
 
-const KOSONG: JawabanAi = { sistemTubuh: '', polaGangguan: '', polaTcm: '', mekanisme: '', prinsipTerapi: '' };
+const KOSONG: JawabanAi = {
+  sistemTubuh: '',
+  polaGangguan: '',
+  polaTcm: '',
+  mekanismeTcm: '',
+  mekanismeBarat: '',
+  prinsipTerapi: '',
+};
 
 /** Susun prompt singkat berformat tetap agar jawaban mudah diurai. */
 export function buildPromptTcm(keluhan: string): string {
@@ -30,11 +40,12 @@ export function buildPromptTcm(keluhan: string): string {
     'Anda asisten praktisi Traditional Chinese Medicine (TCM).',
     `Keluhan pasien: "${k}".`,
     'Berdasarkan keluhan tersebut, tentukan secara singkat diagnosa TCM, pola (sindrom) yang kemungkinan terjadi, dan prinsip terapinya.',
-    'Jawab dalam Bahasa Indonesia, maksimal 2 kalimat per bagian, TANPA teks lain, persis dengan format 5 baris berikut:',
+    'Jawab dalam Bahasa Indonesia, maksimal 2 kalimat per bagian, TANPA teks lain, persis dengan format 6 baris berikut:',
     `${LABEL_SISTEM}: ...`,
     `${LABEL_POLA_GANGGUAN}: ...`,
     `${LABEL_POLA_TCM}: ...`,
-    `${LABEL_MEKANISME}: ...`,
+    `${LABEL_MEKANISME_TCM}: ...`,
+    `${LABEL_MEKANISME_BARAT}: ...`,
     `${LABEL_PRINSIP}: ...`,
   ].join('\n');
 }
@@ -44,14 +55,18 @@ export function chatGptUrl(prompt: string): string {
   return `${CHATGPT_BASE_URL}?q=${encodeURIComponent(prompt)}`;
 }
 
+// Dicocokkan terhadap label lengkap (termasuk keterangan dalam kurung).
 // Urutan penting: label yang lebih spesifik diperiksa lebih dulu.
 const LABELS: ReadonlyArray<{ key: keyof JawabanAi; re: RegExp }> = [
-  // "SYSTEM TUBUH YANG TERDAMPAK", "Sistem tubuh", "Organ yang terdampak", dst.
-  { key: 'sistemTubuh', re: /^(?:system|sistem)(?:\s+tubuh)?\b|^organ\b/i },
+  // "SYSTEM FISIOLOGI TUBUH YANG TERDAMPAK (…)", "Sistem tubuh", "Organ yang terdampak", dst.
+  { key: 'sistemTubuh', re: /^(?:system|sistem)\b|^organ\b/i },
   { key: 'polaGangguan', re: /^pola\s+gangguan\b/i },
   // "POLA TCM", juga "Pola", "Pola yang kemungkinan terjadi", "Sindrom".
   { key: 'polaTcm', re: /^(?:pola|sindrom)\b/i },
-  { key: 'mekanisme', re: /^mekanisme\b/i },
+  // "MEKANISME (SECARA MEDIS BARAT)", "Mekanisme medis", "Mekanisme kedokteran modern".
+  { key: 'mekanismeBarat', re: /^mekanisme\b.*\b(?:barat|medis|modern|kedokteran)\b/i },
+  // "MEKANISME (SECARA TCM)", juga "Mekanisme" saja.
+  { key: 'mekanismeTcm', re: /^mekanisme\b/i },
   { key: 'prinsipTerapi', re: /^prinsip(?:\s+terapi)?\b/i },
 ];
 
@@ -64,14 +79,13 @@ function bersihkanBaris(line: string): string {
 }
 
 /**
- * Pisahkan "LABEL : isi". Pemisah utama titik dua (pertama); bila tidak ada,
- * tanda pisah yang diapit spasi (" - "). Keterangan dalam kurung pada label
- * diabaikan saat mencocokkan, mis. "POLA GANGGUAN (DEFISIENSI, …)".
+ * Pisahkan "LABEL : isi". Pemisah utama titik dua pertama di luar kurung; bila
+ * tidak ada, tanda pisah yang diapit spasi (" - ").
  */
 function pisahLabel(line: string): { label: string; isi: string } | null {
-  const m = /^(.{2,90}?)\s*[:：]\s*(.*)$/.exec(line) ?? /^(.{2,90}?)\s+[-–]\s+(.*)$/.exec(line);
+  const m = /^((?:[^:：(]|\([^)]*\)){2,160}?)\s*[:：]\s*(.*)$/.exec(line) ?? /^(.{2,160}?)\s+[-–]\s+(.*)$/.exec(line);
   if (!m) return null;
-  return { label: m[1]!.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim(), isi: m[2]!.trim() };
+  return { label: m[1]!.replace(/\s+/g, ' ').trim(), isi: m[2]!.trim() };
 }
 
 /**
@@ -105,15 +119,16 @@ export function parseJawabanAi(text: string): JawabanAi | null {
 
 /**
  * Petakan jawaban ke isian formulir sesi:
- * Diagnosa = sistem tubuh, pola gangguan, pola TCM, mekanisme (satu per baris);
- * Terapi = prinsip terapi. Bagian kosong dilewati.
+ * Diagnosa = sistem tubuh, pola gangguan, pola TCM, mekanisme TCM, mekanisme
+ * medis Barat (satu per baris); Terapi = prinsip terapi. Bagian kosong dilewati.
  */
 export function keIsianForm(j: JawabanAi): { polaPenyakit: string; terapi: string } {
   const diagnosa = [
-    ['System tubuh yang terdampak', j.sistemTubuh],
+    ['System fisiologi tubuh yang terdampak', j.sistemTubuh],
     ['Pola gangguan', j.polaGangguan],
     ['Pola TCM', j.polaTcm],
-    ['Mekanisme', j.mekanisme],
+    ['Mekanisme (TCM)', j.mekanismeTcm],
+    ['Mekanisme (medis Barat)', j.mekanismeBarat],
   ]
     .filter(([, isi]) => isi)
     .map(([label, isi]) => `${label}: ${isi}`)

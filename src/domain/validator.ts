@@ -3,7 +3,7 @@
 // Panjang teks dihitung per code point ([...s].length) sehingga emoji dan
 // karakter non-ASCII lain dihitung satu karakter.
 
-import { isTanggalValid, parseTanggal } from './tanggal';
+import { isTanggalValid } from './tanggal';
 import type {
   FieldErrors,
   JadwalField,
@@ -53,7 +53,7 @@ export const PESAN = {
   pasienWajib: 'Pasien wajib diisi',
   tanggalWajib: 'Tanggal wajib diisi',
   jamWajib: 'Jam wajib diisi',
-  jadwalLewat: 'Jadwal tidak boleh di waktu yang sudah lewat',
+  jadwalLewat: 'Tanggal jadwal tidak boleh sebelum hari ini',
   catatanMaks: 'Catatan maksimal 500 karakter',
 } as const;
 
@@ -206,21 +206,10 @@ export interface ValidateJadwalOptions {
   abaikanWaktuLewat?: boolean;
 }
 
-/** Epoch ms waktu lokal dari tanggal "YYYY-MM-DD" dan jam "HH:mm". */
-function waktuLokal(tanggal: string, jam: string): number | null {
-  const t = parseTanggal(tanggal);
-  if (!t || !isJamValid(jam)) return null;
-  const d = new Date(2000, 0, 1, 0, 0, 0, 0);
-  d.setFullYear(t.tahun, t.bulan - 1, t.hari);
-  d.setHours(Number(jam.slice(0, 2)), Number(jam.slice(3, 5)), 0, 0);
-  return d.getTime();
-}
-
-/** `now` dibulatkan ke bawah ke menit (waktu lokal). */
-function potongKeMenit(now: Date): number {
-  const d = new Date(now.getTime());
-  d.setSeconds(0, 0);
-  return d.getTime();
+/** Tanggal lokal "YYYY-MM-DD" dari `now` (tahun 4 digit, dibandingkan sebagai teks). */
+function tanggalLokal(now: Date): string {
+  const pad = (n: number, w = 2) => String(n).padStart(w, '0');
+  return `${pad(now.getFullYear(), 4)}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 export function validateJadwal(
@@ -241,12 +230,9 @@ export function validateJadwal(
   if (!tanggalOk) errors.tanggal = PESAN.tanggalWajib;
   if (!jamOk) errors.jam = PESAN.jamWajib;
 
-  if (tanggalOk && jamOk && !options.abaikanWaktuLewat) {
-    const waktu = waktuLokal(tanggal, jam);
-    if (waktu !== null && waktu < potongKeMenit(now)) {
-      // Pesan ditempatkan pada field tanggal (kolom waktu jadwal).
-      errors.tanggal = PESAN.jadwalLewat;
-    }
+  // Jadwal boleh di hari ini (jam berapa pun); hanya tanggal sebelum hari ini yang ditolak.
+  if (tanggalOk && jamOk && !options.abaikanWaktuLewat && tanggal < tanggalLokal(now)) {
+    errors.tanggal = PESAN.jadwalLewat;
   }
 
   if (panjangKarakter(catatan) > BATAS_CATATAN) errors.catatan = PESAN.catatanMaks;

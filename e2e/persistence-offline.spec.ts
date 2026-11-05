@@ -2,7 +2,7 @@
 // Validates: Requirements 10.2, 11.5, 11.8
 
 import { expect, test, type Page } from '@playwright/test';
-import { countDb, isoDate, openApp, openDialog, waitForPasienList } from './helpers';
+import { cariPasien, countDb, isoDate, jumlahTerdaftar, openApp, openDialog, waitForPasienList } from './helpers';
 
 const NAMA = 'Dewi Lestari Ñandú';
 const NAMA_UBAH = 'Dewi Lestari Ñandú (ubah)';
@@ -20,6 +20,7 @@ async function tambahPasien(page: Page, nama: string, noHp: string): Promise<voi
 }
 
 async function tambahSesi(page: Page, nama: string, biaya: string): Promise<void> {
+  await cariPasien(page, nama);
   await page.getByRole('link', { name: nama, exact: true }).click();
   await expect(page.getByRole('heading', { level: 1, name: nama })).toBeVisible();
   await page.getByRole('button', { name: 'Tambah sesi' }).click();
@@ -60,6 +61,7 @@ async function tambahJadwalUntuk(page: Page, nama: string, jam: string): Promise
 
 async function hapusPasien(page: Page, nama: string): Promise<void> {
   await page.getByRole('navigation').getByRole('link', { name: 'Pasien' }).click();
+  await cariPasien(page, nama);
   await page.getByRole('button', { name: `Hapus ${nama}`, exact: true }).click();
   await openDialog(page).getByRole('button', { name: 'Hapus', exact: true }).click();
   await expect(page.getByText('Data pasien berhasil dihapus').last()).toBeVisible();
@@ -67,6 +69,7 @@ async function hapusPasien(page: Page, nama: string): Promise<void> {
 
 async function ubahPasien(page: Page, nama: string, namaBaru: string): Promise<void> {
   await page.getByRole('navigation').getByRole('link', { name: 'Pasien' }).click();
+  await cariPasien(page, nama);
   await page.getByRole('button', { name: `Ubah ${nama}`, exact: true }).click();
   const dlg = openDialog(page);
   await dlg.getByLabel('Nama').fill(namaBaru);
@@ -101,7 +104,8 @@ test.describe('Persistensi data setelah reload (Req 10.2)', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Jadwal' })).toBeVisible();
     await page.getByRole('navigation').getByRole('link', { name: 'Pasien' }).click();
     await waitForPasienList(page);
-    await expect(page.getByTestId('pasien-item')).toHaveCount(2);
+    await expect(jumlahTerdaftar(page, 2)).toBeVisible();
+    await cariPasien(page, NAMA);
     await expect(page.getByRole('link', { name: NAMA, exact: true })).toBeVisible();
     expect(await countDb(page)).toEqual({ pasien: 2, sesi: 1, jadwal: 1 });
 
@@ -115,9 +119,11 @@ test.describe('Persistensi data setelah reload (Req 10.2)', () => {
     await hapusPasien(page, 'Agus Salim');
     await page.reload();
     await waitForPasienList(page);
-    await expect(page.getByTestId('pasien-item')).toHaveCount(1);
+    await expect(jumlahTerdaftar(page, 1)).toBeVisible();
+    await cariPasien(page, NAMA_UBAH);
     await expect(page.getByRole('link', { name: NAMA_UBAH, exact: true })).toBeVisible();
-    await expect(page.getByText('Agus Salim')).toHaveCount(0);
+    await cariPasien(page, 'Agus Salim');
+    await expect(page.getByText('Pasien tidak ditemukan')).toBeVisible();
     expect(await countDb(page)).toEqual({ pasien: 1, sesi: 1, jadwal: 1 });
 
     // Hapus pasien beserta sesi & jadwalnya, lalu reload: semua kosong.
@@ -139,12 +145,14 @@ test.describe('Mode offline setelah service worker terpasang (Req 11.5, 11.8)', 
     // Muat ulang tanpa jaringan: dokumen & aset disajikan dari precache.
     await page.reload();
     await waitForPasienList(page);
+    await cariPasien(page, 'Pasien Online');
     await expect(page.getByRole('link', { name: 'Pasien Online', exact: true })).toBeVisible();
 
     // Setiap halaman dapat dibuka langsung saat offline.
     for (const [hash, heading] of [
       ['#/jadwal', 'Jadwal'],
       ['#/laporan', 'Laporan Pemasukan'],
+      ['#/grafik', 'Grafik Pasien'],
       ['#/cadangan', 'Cadangan'],
       ['#/', 'Pasien'],
     ] as const) {
@@ -164,15 +172,16 @@ test.describe('Mode offline setelah service worker terpasang (Req 11.5, 11.8)', 
 
     await page.reload();
     await waitForPasienList(page);
-    await expect(page.getByTestId('pasien-item')).toHaveCount(1);
+    await expect(jumlahTerdaftar(page, 1)).toBeVisible();
 
     // Kembali online: seluruh perubahan tetap ada, tanpa hilang atau ganda.
     await context.setOffline(false);
     await page.reload();
     await waitForPasienList(page);
-    await expect(page.getByTestId('pasien-item')).toHaveCount(1);
+    await expect(jumlahTerdaftar(page, 1)).toBeVisible();
+    await cariPasien(page, NAMA_UBAH);
     await expect(page.getByRole('link', { name: NAMA_UBAH, exact: true })).toBeVisible();
-    await expect(page.getByText('Pasien Online')).toHaveCount(0);
+    await expect(page.getByTestId('pasien-item')).toHaveCount(1);
     expect(await countDb(page)).toEqual({ pasien: 1, sesi: 1, jadwal: 1 });
 
     await page.getByRole('link', { name: NAMA_UBAH, exact: true }).click();

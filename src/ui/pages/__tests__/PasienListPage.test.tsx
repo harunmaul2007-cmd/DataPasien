@@ -17,6 +17,7 @@ import {
   PasienListPage,
   PESAN_BELUM_ADA_PASIEN,
   PESAN_PASIEN_TIDAK_DITEMUKAN_CARI,
+  pesanKetikPencarian,
 } from '../PasienListPage';
 
 let counter = 0;
@@ -67,6 +68,14 @@ async function setup(seed: Pasien[] = [], tweak?: (repo: DexieRepository) => voi
 
 const dialog = (name: string) => screen.getByRole('dialog', { name });
 
+/** Ketik kata kunci lalu tunggu daftar pasien tampil (daftar kosong tanpa kata kunci). */
+async function cari(user: ReturnType<typeof userEvent.setup>, kata: string) {
+  const box = screen.getByRole('searchbox', { name: 'Cari pasien' });
+  await user.clear(box);
+  await user.type(box, kata);
+  await screen.findAllByTestId('pasien-item');
+}
+
 describe('PasienListPage: pesan daftar kosong (Req 4.5, 4.8)', () => {
   it('tanpa data pasien menampilkan "Belum ada data pasien", bukan "Pasien tidak ditemukan"', async () => {
     const { user } = await setup();
@@ -83,6 +92,7 @@ describe('PasienListPage: pesan daftar kosong (Req 4.5, 4.8)', () => {
 
   it('kata kunci tanpa kecocokan menampilkan daftar kosong dan "Pasien tidak ditemukan"', async () => {
     const { user } = await setup([pasien('p1')]);
+    await cari(user, 'Budi');
     expect(screen.getAllByTestId('pasien-item')).toHaveLength(1);
 
     await user.type(screen.getByRole('searchbox', { name: 'Cari pasien' }), 'zzz');
@@ -92,10 +102,41 @@ describe('PasienListPage: pesan daftar kosong (Req 4.5, 4.8)', () => {
   });
 });
 
+describe('PasienListPage: daftar kosong sampai ada pencarian (Req user)', () => {
+  it('tanpa kata kunci tidak menampilkan pasien; mengetik menampilkan; menghapus kata kunci mengosongkan lagi', async () => {
+    const { user } = await setup([pasien('p1', { nama: 'Dewi' }), pasien('p2', { nama: 'Agus', noHp: '081311112222' })]);
+    expect(screen.queryAllByTestId('pasien-item')).toHaveLength(0);
+    expect(screen.getByRole('status')).toHaveTextContent(pesanKetikPencarian(2));
+
+    await cari(user, 'dew');
+    expect(screen.getAllByTestId('pasien-item')).toHaveLength(1);
+    expect(screen.getByRole('link', { name: 'Dewi' })).toBeInTheDocument();
+
+    await user.clear(screen.getByRole('searchbox', { name: 'Cari pasien' }));
+    await act(() => new Promise((r) => setTimeout(r, DEBOUNCE_PENCARIAN_MS + 100)));
+    expect(screen.queryAllByTestId('pasien-item')).toHaveLength(0);
+  });
+
+  it('setelah menambah pasien, pasien baru langsung tampil', async () => {
+    const { user } = await setup([pasien('p1', { nama: 'Dewi' })]);
+    await user.click(screen.getByRole('button', { name: '+ Tambah Pasien' }));
+    const d = dialog('Tambah Pasien');
+    await user.type(within(d).getByLabelText('Nama'), 'Rahmat');
+    await user.type(within(d).getByLabelText('Alamat'), 'Jl. Melati');
+    await user.type(within(d).getByLabelText('Nomor HP'), '081298765432');
+    await user.click(within(d).getByRole('button', { name: 'Simpan' }));
+
+    expect(await screen.findByRole('link', { name: 'Rahmat' })).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Cari pasien' })).toHaveValue('Rahmat');
+    expect(screen.getAllByTestId('pasien-item')).toHaveLength(1);
+  });
+});
+
 describe('PasienFormDialog (Req 1.8, 1.9, 2.1, 2.5)', () => {
   it('formulir ubah terisi nilai tersimpan sama persis karakter demi karakter', async () => {
     const tersimpan = pasien('p1', { nama: 'Siti  Aminah', alamat: 'Jl. Kenanga No. 7, RT 01/02 "Blok A"', noHp: '+6281234567890' });
     const { user } = await setup([tersimpan]);
+    await cari(user, 'Siti');
 
     // Nama aksesibel dinormalisasi spasinya oleh Testing Library.
     await user.click(screen.getByRole('button', { name: 'Ubah Siti Aminah' }));
@@ -157,6 +198,7 @@ describe('PasienFormDialog (Req 1.8, 1.9, 2.1, 2.5)', () => {
     const { user, store, repo } = await setup([asli], (r) => {
       r.updatePasien = () => Promise.reject(new Error('disk penuh'));
     });
+    await cari(user, 'Budi');
 
     await user.click(screen.getByRole('button', { name: `Ubah ${asli.nama}` }));
     const d = dialog('Ubah Pasien');
@@ -175,6 +217,7 @@ describe('PasienFormDialog (Req 1.8, 1.9, 2.1, 2.5)', () => {
   it('batal pada formulir ubah menutup tanpa menyimpan; dibuka lagi berisi nilai tersimpan', async () => {
     const asli = pasien('p1');
     const { user, store, repo } = await setup([asli]);
+    await cari(user, 'Budi');
 
     await user.click(screen.getByRole('button', { name: `Ubah ${asli.nama}` }));
     let d = dialog('Ubah Pasien');
@@ -195,6 +238,7 @@ describe('PasienFormDialog (Req 1.8, 1.9, 2.1, 2.5)', () => {
 describe('HapusPasienDialog (Req 3.1, 3.3)', () => {
   it('menampilkan nama pasien serta angka 0 untuk sesi dan jadwal, dengan tombol konfirmasi dan batal', async () => {
     const { user } = await setup([pasien('p1', { nama: 'Dewi' })]);
+    await cari(user, 'Dewi');
 
     await user.click(screen.getByRole('button', { name: 'Hapus Dewi' }));
     const d = dialog('Hapus Pasien');
@@ -210,6 +254,7 @@ describe('HapusPasienDialog (Req 3.1, 3.3)', () => {
   it('batal menutup dialog dan mempertahankan data pasien', async () => {
     const dewi = pasien('p1', { nama: 'Dewi' });
     const { user, store, repo } = await setup([dewi]);
+    await cari(user, 'Dewi');
 
     await user.click(screen.getByRole('button', { name: 'Hapus Dewi' }));
     await user.click(within(dialog('Hapus Pasien')).getByRole('button', { name: 'Batal' }));

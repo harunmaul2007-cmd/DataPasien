@@ -17,6 +17,7 @@ import { MainNav } from './navigation/MainNav';
 import { ROUTES } from './navigation/routes';
 import { CadanganPage } from './pages/CadanganPage';
 import { FullVersionGuard } from './pages/FullVersionGuard';
+import { GrafikPage } from './pages/GrafikPage';
 import { JadwalPage } from './pages/JadwalPage';
 import { LaporanPage } from './pages/LaporanPage';
 import { PasienDetailPage } from './pages/PasienDetailPage';
@@ -30,6 +31,7 @@ export function AppRoutes(): ReactNode {
       <Route path={ROUTES.pasienDetail} element={<PasienDetailPage />} />
       <Route path={ROUTES.jadwal} element={<JadwalPage />} />
       <Route path={ROUTES.laporan} element={<LaporanPage />} />
+      <Route path={ROUTES.grafik} element={<GrafikPage />} />
       <Route
         path={ROUTES.pengaturan}
         element={

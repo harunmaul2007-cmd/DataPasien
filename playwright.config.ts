@@ -15,6 +15,7 @@ export default defineConfig({
     command: 'npm run build && npx vite preview --port 4173 --strictPort',
     url: 'http://localhost:4173',
     reuseExistingServer: true,
-    timeout: 120_000,
+    // Build (tsc + vite) bisa lebih dari 2 menit saat mesin sibuk.
+    timeout: 300_000,
   },
 });

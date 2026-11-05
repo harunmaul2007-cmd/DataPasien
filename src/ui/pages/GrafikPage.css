@@ -1,0 +1,45 @@
+/* Gaya halaman grafik pasien. Warna mengikuti token tema. */
+.grafik__kanvas {
+  width: 100%;
+  max-width: 640px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  box-sizing: border-box;
+}
+
+.grafik__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.grafik__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+.grafik__label {
+  fill: var(--color-muted);
+  font-size: 18px;
+}
+
+.grafik__garis {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.grafik__area {
+  fill: var(--color-primary);
+  opacity: 0.12;
+}
+
+.grafik__titik {
+  fill: var(--color-surface);
+  stroke: var(--color-primary);
+  stroke-width: 2;
+}

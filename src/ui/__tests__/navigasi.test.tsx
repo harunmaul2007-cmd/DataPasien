@@ -14,17 +14,17 @@ import { createDialogStack, DialogStackProvider } from '../components/DialogStac
 import { createDataStore } from '../../state/dataStore';
 
 describe('MainNav (Req 11.2, 11.6)', () => {
-  it('menampilkan empat menu utama Pasien, Jadwal, Laporan, Pengaturan beserta menu Cadangan', () => {
+  it('menampilkan menu utama Pasien, Jadwal, Laporan, Grafik, Pengaturan beserta menu Cadangan', () => {
     render(
       <MemoryRouter initialEntries={['/jadwal']}>
         <MainNav />
       </MemoryRouter>,
     );
     const nav = screen.getByRole('navigation', { name: 'Navigasi utama' });
-    for (const label of ['Pasien', 'Jadwal', 'Laporan', 'Pengaturan']) {
+    for (const label of ['Pasien', 'Jadwal', 'Laporan', 'Grafik', 'Pengaturan']) {
       expect(within(nav).getByRole('link', { name: new RegExp(label) })).toBeInTheDocument();
     }
-    expect(MAIN_NAV.map((i) => i.label)).toEqual(['Pasien', 'Jadwal', 'Laporan', 'Pengaturan']);
+    expect(MAIN_NAV.map((i) => i.label)).toEqual(['Pasien', 'Jadwal', 'Laporan', 'Grafik', 'Pengaturan']);
     expect(within(nav).getByRole('link', { name: 'Cadangan' })).toHaveAttribute('href', '/cadangan');
     // Menu aktif sesuai rute.
     expect(within(nav).getByRole('link', { name: /Jadwal/ })).toHaveAttribute('aria-current', 'page');

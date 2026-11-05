@@ -244,6 +244,22 @@ button {
   line-height: 1;
 }
 
+/* Bilah bawah berisi 5 menu: label satu baris agar tidak terpotong ke baris kedua. */
+.nav__label {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 400px) {
+  .nav__link {
+    padding-left: 2px;
+    padding-right: 2px;
+    font-size: 0.6875rem;
+  }
+}
+
 /* Ikon pengaturan di bilah bawah hanya ikon (label tetap via aria-label). */
 .nav__link--settings .nav__label {
   position: absolute;

@@ -45,6 +45,16 @@ export interface SeedData {
   jadwal: SeedJadwal[];
 }
 
+/** Daftar pasien kosong sampai ada kata kunci: ketik pencarian di Halaman_Utama. */
+export async function cariPasien(page: Page, kata: string): Promise<void> {
+  await page.getByRole('searchbox', { name: 'Cari pasien' }).fill(kata);
+}
+
+/** Pesan Halaman_Utama saat pencarian kosong memuat jumlah pasien terdaftar. */
+export function jumlahTerdaftar(page: Page, n: number): Locator {
+  return page.getByText(`(${n} pasien terdaftar)`);
+}
+
 /** Menunggu Halaman_Utama (daftar pasien) selesai dimuat. */
 export async function waitForPasienList(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { level: 1, name: 'Pasien' })).toBeVisible();

@@ -15,6 +15,7 @@ import { createContext, createElement, useContext, useSyncExternalStore, type Re
 import { buildHistori, type Histori } from '../domain/histori';
 import { newId as defaultNewId } from '../domain/ids';
 import { aksiTersedia, jadwalPadaTanggal, jadwalTerjadwalPasien, semuaJadwal, transisiStatus } from '../domain/jadwal';
+import { buildGrafikBulanan, type GrafikBulanan } from '../domain/grafik';
 import { buildLaporan, type Laporan } from '../domain/laporan';
 import { deletionSummary, searchPasien } from '../domain/pasienQuery';
 import { backupFileName, parseBackup, serializeBackup, type ParseBackupResult } from '../domain/cadangan';
@@ -196,6 +197,7 @@ export class DataStore {
   private readonly memoJadwalPasien = new RefMemo<JadwalKunjungan[]>();
   private readonly memoSemuaJadwal = new RefMemo<JadwalKunjungan[]>();
   private readonly memoLaporan = new RefMemo<Laporan>();
+  private readonly memoGrafik = new RefMemo<GrafikBulanan>();
   private readonly memoSummary = new RefMemo<{ jumlahSesi: number; jumlahJadwal: number; jumlahFoto: number }>();
   private readonly memoFotoSesi = new RefMemo<FotoMeta[]>();
 
@@ -701,6 +703,14 @@ export class DataStore {
     const { sesi, pasien } = this.state.data;
     return this.memoLaporan.get([sesi, pasien], `${tahun}-${bulan}`, () =>
       buildLaporan(bulan, tahun, sesi, pasien),
+    );
+  }
+
+  /** Jumlah pasien yang terapi per hari pada bulan/tahun terpilih (menu Grafik). */
+  selectGrafikBulanan(bulan: number, tahun: number): GrafikBulanan {
+    const { sesi, pasien } = this.state.data;
+    return this.memoGrafik.get([sesi, pasien], `${tahun}-${bulan}`, () =>
+      buildGrafikBulanan(bulan, tahun, sesi, pasien),
     );
   }
 

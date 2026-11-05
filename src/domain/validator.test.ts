@@ -112,10 +112,15 @@ describe('validateJadwal', () => {
     });
   });
 
-  it('menolak jadwal satu menit sebelum now', () => {
-    expect(validateJadwal({ ...valid, jam: '09:29' }, now, ids)).toEqual({
+  it('menerima jadwal hari ini meski jamnya sudah lewat', () => {
+    expect(validateJadwal({ ...valid, jam: '09:29' }, now, ids).ok).toBe(true);
+    expect(validateJadwal({ ...valid, jam: '00:00' }, now, ids).ok).toBe(true);
+  });
+
+  it('menolak jadwal pada tanggal sebelum hari ini', () => {
+    expect(validateJadwal({ ...valid, tanggal: '2025-01-04', jam: '23:59' }, now, ids)).toEqual({
       ok: false,
-      errors: { tanggal: 'Jadwal tidak boleh di waktu yang sudah lewat' },
+      errors: { tanggal: 'Tanggal jadwal tidak boleh sebelum hari ini' },
     });
   });
 

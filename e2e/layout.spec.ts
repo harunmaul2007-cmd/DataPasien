@@ -2,7 +2,7 @@
 // Validates: Requirements 11.1, 11.2, 11.3, 11.6
 
 import { expect, test, type Page } from '@playwright/test';
-import { expectCleanLayout, openApp, openDialog, sampleData, seedDb } from './helpers';
+import { cariPasien, expectCleanLayout, openApp, openDialog, sampleData, seedDb } from './helpers';
 
 const WIDTHS = [360, 414, 768, 1024, 1440, 1920] as const;
 const HEIGHT = 800;
@@ -12,6 +12,7 @@ const PAGES: { name: string; hash: string; heading: string }[] = [
   { name: 'detail pasien', hash: '#/pasien/p-1', heading: 'Siti Nurhaliza' },
   { name: 'jadwal', hash: '#/jadwal', heading: 'Jadwal' },
   { name: 'laporan', hash: '#/laporan', heading: 'Laporan Pemasukan' },
+  { name: 'grafik', hash: '#/grafik', heading: 'Grafik Pasien' },
   { name: 'cadangan', hash: '#/cadangan', heading: 'Cadangan' },
 ];
 
@@ -45,6 +46,10 @@ test.describe('Tata letak tanpa scroll horizontal dan area sentuh ≥ 44×44', (
       await expectCleanLayout(page, `formulir pasien (error) @ ${width}px`, 'dialog[open]');
       await openDialog(page).getByRole('button', { name: 'Batal' }).click();
 
+      // Daftar pasien kosong sampai dicari; periksa juga tata letak hasil pencarian.
+      await cariPasien(page, 'Siti');
+      await expect(page.getByTestId('pasien-item').first()).toBeVisible();
+      await expectCleanLayout(page, `hasil pencarian pasien @ ${width}px`);
       await page.getByRole('button', { name: /^Hapus Siti/ }).click();
       await expect(openDialog(page)).toBeVisible();
       await expectCleanLayout(page, `konfirmasi hapus @ ${width}px`, 'dialog[open]');
@@ -70,6 +75,7 @@ test.describe('Navigasi utama: menu bawah (< 768 px) vs sidebar (≥ 768 px)', (
     { label: 'Pasien', heading: 'Pasien' },
     { label: 'Jadwal', heading: 'Jadwal' },
     { label: 'Laporan', heading: 'Laporan Pemasukan' },
+    { label: 'Grafik', heading: 'Grafik Pasien' },
   ];
 
   for (const width of [360, 414, 767, 768, 1024, 1440, 1920]) {

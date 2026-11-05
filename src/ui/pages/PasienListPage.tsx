@@ -1,4 +1,6 @@
 // Halaman daftar pasien (Halaman_Utama), Req 1–4.
+// - Daftar kosong secara default; pasien tampil setelah pengguna mengetik kata kunci.
+//   Setelah menambah pasien, kata kunci diisi nama pasien baru agar langsung terlihat.
 // - Daftar terurut nama berisi nama, alamat, nomor HP, dan tanggal terapi terakhir ("-" bila belum ada).
 // - Pencarian maksimal 100 karakter dengan debounce 200 ms (< 500 ms Req 4.3).
 // - Tombol tambah, ubah, dan hapus membuka dialog formulir / konfirmasi.
@@ -18,6 +20,11 @@ export const BATAS_KATA_KUNCI = 100;
 export const DEBOUNCE_PENCARIAN_MS = 200;
 export const PESAN_BELUM_ADA_PASIEN = 'Belum ada data pasien';
 export const PESAN_PASIEN_TIDAK_DITEMUKAN_CARI = 'Pasien tidak ditemukan';
+
+/** Pesan awal saat kolom pencarian masih kosong. */
+export function pesanKetikPencarian(total: number): string {
+  return `Ketik nama atau nomor HP untuk menampilkan pasien (${total} pasien terdaftar)`;
+}
 
 function useDebounced<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -39,12 +46,15 @@ export function PasienListPage(): ReactNode {
   const [form, setForm] = useState<PasienFormMode | null>(null);
   const [hapusId, setHapusId] = useState<string | null>(null);
 
-  const list = store.selectPasienList(debouncedKeyword);
   const totalPasien = data.pasien.length;
+  // Daftar hanya tampil setelah pengguna mengetik kata kunci pencarian.
+  const adaKataKunci = debouncedKeyword.trim() !== '';
+  const list = adaKataKunci ? store.selectPasienList(debouncedKeyword) : [];
 
   let emptyMessage: string | null = null;
   if (totalPasien === 0) emptyMessage = PESAN_BELUM_ADA_PASIEN;
-  else if (list.length === 0 && debouncedKeyword.trim() !== '') emptyMessage = PESAN_PASIEN_TIDAK_DITEMUKAN_CARI;
+  else if (!adaKataKunci) emptyMessage = pesanKetikPencarian(totalPasien);
+  else if (list.length === 0) emptyMessage = PESAN_PASIEN_TIDAK_DITEMUKAN_CARI;
 
   return (
     <section className="page pasien-list" aria-labelledby={`${searchId}-title`}>
@@ -90,7 +100,14 @@ export function PasienListPage(): ReactNode {
         </ul>
       )}
 
-      <PasienFormDialog open={form !== null} target={form ?? { mode: 'tambah' }} onClose={() => setForm(null)} />
+      <PasienFormDialog
+        open={form !== null}
+        target={form ?? { mode: 'tambah' }}
+        onClose={() => setForm(null)}
+        onSaved={(p) => {
+          if (form?.mode === 'tambah') setKeyword(p.nama.slice(0, BATAS_KATA_KUNCI));
+        }}
+      />
       <HapusPasienDialog pasienId={hapusId} onClose={() => setHapusId(null)} />
     </section>
   );
