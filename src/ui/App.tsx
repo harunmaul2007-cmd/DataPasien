@@ -9,6 +9,8 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { createPlatformAdapter, type PlatformAdapter } from '../infra/platform';
 import { DataStoreProvider, useDataStore, useDataStoreState, type DataStore } from '../state/dataStore';
 import { LisensiProvider, type LisensiProviderProps } from '../state/lisensi';
+import { AppBackground } from './components/AppBackground';
+import { AppHeader } from './components/AppHeader';
 import { DialogStackProvider, type DialogStackApi } from './components/DialogStack';
 import { LoadErrorScreen, LoadingScreen } from './components/LoadErrorScreen';
 import { ToastProvider } from './components/Toast';
@@ -59,6 +61,8 @@ function AppContent(): ReactNode {
 export function AppShell(): ReactNode {
   return (
     <div className="app">
+      <AppBackground />
+      <AppHeader />
       <MainNav />
       <main className="app__main">
         <AppContent />

@@ -56,7 +56,15 @@ export function MainNav(): ReactNode {
       : undefined;
   return (
     <nav className="nav" aria-label="Navigasi utama">
-      <span className="nav__brand">{APP_INFO.namaAplikasi}</span>
+      <span className="nav__brand">
+        <img
+          src="./logo-horizontal.png"
+          alt={APP_INFO.namaAplikasi}
+          className="nav__brand-logo"
+          width="168"
+          height="24"
+        />
+      </span>
       <ul className="nav__list">
         {MAIN_NAV.map((item) => (
           <li key={item.to} className="nav__item">

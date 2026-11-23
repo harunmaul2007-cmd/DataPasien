@@ -171,15 +171,90 @@ button {
   min-height: 100vh;
   min-height: 100dvh;
   max-width: 100%;
+  position: relative;
+  background: var(--app-bg-gradient, var(--color-bg));
+}
+
+/* ---- Background Dekoratif Aplikasi ---- */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.app-bg__gradient {
+  position: absolute;
+  inset: 0;
+  background: var(--app-bg-gradient, var(--color-bg));
+}
+
+.app-bg__waves-top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  max-width: 650px;
+  height: 260px;
+  pointer-events: none;
+}
+
+.app-bg__waves-bottom {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  max-width: 750px;
+  height: 240px;
+  pointer-events: none;
+}
+
+.app-bg__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- Header Atas Aplikasi (< 768px) ---- */
+.app-header {
+  display: flex;
+  align-items: center;
+  padding: calc(var(--space-2) + env(safe-area-inset-top, 0px)) var(--space-4) 0;
+  z-index: 5;
+  position: relative;
+}
+
+.app-header__brand {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  min-height: var(--touch-min);
+}
+
+.app-header__logo {
+  height: 38px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .app-header {
+    display: none;
+  }
 }
 
 .app__main {
   flex: 1;
   min-width: 0;
   max-width: 100%;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   /* Ruang untuk navigasi bawah tetap. */
   padding-bottom: calc(var(--nav-height) + var(--space-4) + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  z-index: 1;
 }
 
 .page {
@@ -194,8 +269,11 @@ button {
   right: 0;
   bottom: 0;
   z-index: 10;
-  background: var(--color-surface);
+  background: var(--color-nav-bg, rgba(255, 255, 255, 0.94));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-top: 1px solid var(--color-border);
+  box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.04);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -297,6 +375,14 @@ button {
     padding: 0 var(--space-3) var(--space-4);
   }
 
+  .nav__brand-logo {
+    height: 36px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
   .nav__list {
     flex-direction: column;
     height: auto;
@@ -358,9 +444,10 @@ button {
   width: 100%;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-input-border, var(--color-border));
-  border-radius: var(--radius);
+  border-radius: 10px;
   background: var(--color-input-bg, var(--color-surface));
   color: var(--color-input-text, var(--color-text));
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 textarea.field__input {
